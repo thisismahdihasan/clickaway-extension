@@ -33,7 +33,11 @@
       "matches": [
         "https://printify.com/app/*"
       ],
+      "css": [
+        "components/clico/clico.css"
+      ],
       "js": [
+        "components/clico/clico.js",
         "content.js"
       ],
       "run_at": "document_idle"

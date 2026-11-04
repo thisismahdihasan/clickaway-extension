@@ -1,9 +1,30 @@
 (() => {
+  // Keep these in sync with components/clico/clico.js. API version covers the
+  // method contract; component revision covers any JS or CSS asset change.
+  const Clico = globalThis.ClickAwayClico;
+  const CLICO_API_VERSION = 3;
+  const CLICO_COMPONENT_REVISION = 12;
+  const clicoMethods = ["markup", "setState", "success", "outcome", "failure", "cleanup"];
+  if (Clico?.version !== CLICO_API_VERSION || Clico?.revision !== CLICO_COMPONENT_REVISION || clicoMethods.some((method) => typeof Clico[method] !== "function")) {
+    console.error("[ClickAway] The required Clico API/component revision is unavailable or incomplete; content-script initialization stopped.");
+    return;
+  }
+
   // Skip if a live copy is already running; replace a dead copy left over from an extension reload
   const prev = window.__pfSP;
-  if (prev && prev.alive()) return;
-  if (prev) { clearInterval(prev.timer); prev.obs?.disconnect(); document.getElementById("pf-sp-btn")?.remove(); document.getElementById("pf-sp-cbtn")?.remove(); document.getElementById("pf-sp-nbtn")?.remove(); }
-  window.__pfSP = { alive: () => { try { return !!chrome.runtime?.id; } catch { return false; } }, timer: 0 };
+  if (prev && prev.alive() && prev.clicoVersion === Clico.version && prev.clicoRevision === Clico.revision) return;
+  if (prev) {
+    dismissToast();
+    document.querySelectorAll(".pf-sp-clico-introduction").forEach((intro) => intro.remove());
+    clearInterval(prev.timer);
+    prev.obs?.disconnect();
+    for (const id of ["pf-sp-btn", "pf-sp-cbtn", "pf-sp-nbtn"]) {
+      const oldButton = document.getElementById(id);
+      globalThis.ClickAwayClico?.cleanup(oldButton);
+      oldButton?.remove();
+    }
+  }
+  window.__pfSP = { alive: () => { try { return !!chrome.runtime?.id; } catch { return false; } }, clicoVersion: Clico.version, clicoRevision: Clico.revision, timer: 0 };
 
   // One job at a time; the floating button shows progress and can stop the job
   const run = { busy: false, stop: false, btn: null };
@@ -20,7 +41,10 @@
       else if (btn) btn.textContent = "Stopping…";
       return null;
     }
+    dismissClicoBubble();
+    removeAllClicoIntroductions();
     run.busy = true; run.stop = false; run.btn = btn;
+    if (["pf-sp-btn", "pf-sp-cbtn"].includes(btn?.id)) Clico.setState(btn, "working");
     try { return await fn(); }
     finally { run.busy = false; run.stop = false; run.btn = null; try { await cdp({ cdp: "detach" }); } catch {} updateButtonLabel(); updateNamesLabel(); }
   }
@@ -711,9 +735,16 @@
     const color = document.getElementById("pf-sp-cbtn");
     if (color && !fabPositions?.editor) setFabAnchors(color, editorRight(), 96);
     const toastEl = document.getElementById("pf-sp-toast");
-    if (toastEl && toastEl.style.right !== right) toastEl.style.right = right;
+    if (toastEl && toastEl.dataset.presentation !== "clico" && toastEl.style.right !== right) toastEl.style.right = right;
   }
-  window.addEventListener("resize", () => { clampVisibleFabs(); placeOurs(); });
+  window.addEventListener("resize", () => {
+    clampVisibleFabs(); placeOurs();
+    for (const id of ["pf-sp-btn", "pf-sp-cbtn"]) {
+      const button = document.getElementById(id);
+      positionClicoBubble(button);
+      positionClicoIntroduction(button);
+    }
+  });
 
   function addColorButton() {
     if (document.getElementById("pf-sp-cbtn")) return;
@@ -724,8 +755,12 @@
     b.addEventListener("click", async () => {
       try {
         const r = await runJob(b, () => { progress("Starting"); return runColorsFromStorage(); });
-        if (r) toast(colorSummary(r, r.label), r.done.length > 0);
-      } catch (e) { toast(e.message, false); }
+        if (r) {
+          const ok = r.done.length > 0;
+          Clico.outcome(b, ok);
+          clicoOutcomeToast(b, colorSummary(r, r.label), ok ? (r.missing.length ? "partial" : "success") : "error");
+        }
+      } catch (e) { Clico.failure(b, e); clicoOutcomeToast(b, e.message, clicoFailureOutcome(e)); }
     });
     document.body.appendChild(b);
     restoreFabPosition(b, "editor").then(() => placeOurs());
@@ -766,6 +801,8 @@
 
   const FAB_SIZE = 52, FAB_MARGIN = 8, FAB_WIDE = 276, FAB_POSITIONS_KEY = "fabPositions";
   let fabPositions = null;
+  const clicoIntroductionTimers = new WeakMap();
+  const clicoIntroductions = new WeakMap();
 
   const clamp = (n, min, max) => Math.min(Math.max(n, min), Math.max(min, max));
   function setFabAnchors(b, right, bottom) {
@@ -774,6 +811,8 @@
     b.style.left = "auto"; b.style.top = "auto";
     b.style.right = clamp(right, FAB_MARGIN, maxRight) + "px";
     b.style.bottom = clamp(bottom, FAB_MARGIN, maxBottom) + "px";
+    positionClicoBubble(b);
+    positionClicoIntroduction(b);
   }
   function defaultFabAnchors(key) {
     return key === "editor" ? { right: editorRight(), bottom: 96 } : { right: 24, bottom: 96 };
@@ -816,6 +855,8 @@
     b.style.width = "52px"; b.style.borderRadius = "50%"; b.style.paddingRight = "0";
     const copy = b.querySelector(".pf-sp-apply-copy");
     if (copy) { copy.style.width = "0"; copy.style.opacity = "0"; }
+    positionClicoBubble(b);
+    positionClicoIntroduction(b);
   }
   function expandActionFab(b) {
     const right = parseFloat(b.style.right) || 0;
@@ -823,12 +864,95 @@
     b.style.width = width + "px"; b.style.borderRadius = "26px"; b.style.paddingRight = width > FAB_SIZE ? "14px" : "0";
     const copy = b.querySelector(".pf-sp-apply-copy");
     if (copy) { copy.style.width = Math.max(0, width - 66) + "px"; copy.style.opacity = width > 90 ? "1" : "0"; }
+    positionClicoBubble(b);
+    positionClicoIntroduction(b);
+  }
+  function hasClicoOutcomeBubble() {
+    return document.getElementById("pf-sp-toast")?.dataset.presentation === "clico";
+  }
+  function hasClicoOutcomeExpression(b) {
+    return ["success", "error", "cancelled"].includes(b?.dataset.clicoState);
+  }
+  function removeClicoIntroduction(b) {
+    const timer = clicoIntroductionTimers.get(b);
+    if (timer) clearTimeout(timer);
+    clicoIntroductionTimers.delete(b);
+    const intro = clicoIntroductions.get(b);
+    if (intro) intro.remove();
+    clicoIntroductions.delete(b);
+  }
+  function removeAllClicoIntroductions() {
+    for (const id of ["pf-sp-btn", "pf-sp-cbtn"]) removeClicoIntroduction(document.getElementById(id));
+  }
+  function positionClicoIntroduction(b) {
+    const intro = clicoIntroductions.get(b);
+    if (!intro || !b?.isConnected) return;
+    const mascot = b.querySelector(".pf-sp-clico") || b;
+    const artwork = mascot.querySelector("svg") || mascot;
+    const flame = mascot.querySelector(".pf-sp-clico-flame-outer");
+    const character = mascot.querySelector(".pf-sp-clico-character");
+    const artworkRect = artwork.getBoundingClientRect();
+    const flameRect = flame?.getBoundingClientRect();
+    const characterRect = character?.getBoundingClientRect();
+    const targetX = artworkRect.left + artworkRect.width / 2;
+    const margin = 8, tailReach = 7, clearance = 6;
+    const width = intro.offsetWidth, height = intro.offsetHeight;
+    const flameTop = flameRect?.height ? flameRect.top : artworkRect.top;
+    const characterBottom = characterRect?.height ? characterRect.bottom : artworkRect.bottom;
+    const aboveTop = flameTop - clearance - tailReach - height;
+    const belowTop = characterBottom + clearance + tailReach;
+    const below = aboveTop < margin && belowTop + height <= window.innerHeight - margin;
+    const left = clamp(targetX - width / 2, margin, Math.max(margin, window.innerWidth - width - margin));
+    intro.style.left = left + "px";
+    intro.style.top = Math.max(margin, below ? belowTop : aboveTop) + "px";
+    const tail = intro.querySelector(".pf-sp-clico-intro-tail");
+    if (tail) {
+      const tailLeft = clamp(targetX - left - 6, 10, Math.max(10, width - 22));
+      Object.assign(tail.style, below
+        ? { left: tailLeft + "px", top: "-7px", bottom: "auto", clipPath: "polygon(50% 0, 0 100%, 100% 100%)" }
+        : { left: tailLeft + "px", top: "auto", bottom: "-7px", clipPath: "polygon(0 0, 100% 0, 50% 100%)" });
+    }
+  }
+  function canShowClicoIntroduction(b) {
+    return !!(b?.isConnected && b.matches(":hover") && !run.busy && b.dataset.dragging !== "true" && !hasClicoOutcomeBubble() && !hasClicoOutcomeExpression(b));
+  }
+  function showClicoIntroduction(b) {
+    if (!canShowClicoIntroduction(b) || clicoIntroductions.get(b)) return;
+    const intro = document.createElement("div");
+    intro.className = "pf-sp-clico-introduction";
+    intro.setAttribute("aria-hidden", "true");
+    intro.textContent = "Hey, I'm Clico!";
+    Object.assign(intro.style, {
+      position: "fixed", zIndex: 2147483647, padding: "6px 9px", border: "1px solid #afc69d",
+      borderRadius: "12px", background: "#FFFEF7", color: "#263428", font: "600 11px/1.25 system-ui, sans-serif",
+      boxShadow: "0 3px 10px rgba(20,36,24,.16)", pointerEvents: "none", whiteSpace: "nowrap"
+    });
+    const tail = document.createElement("span");
+    tail.className = "pf-sp-clico-intro-tail";
+    Object.assign(tail.style, { position: "absolute", width: "12px", height: "8px", background: "#FFFEF7", pointerEvents: "none" });
+    intro.append(tail);
+    document.body.appendChild(intro);
+    clicoIntroductions.set(b, intro);
+    positionClicoIntroduction(b);
+  }
+  function queueClicoIntroduction(b) {
+    removeClicoIntroduction(b);
+    if (!canShowClicoIntroduction(b)) return;
+    clicoIntroductionTimers.set(b, setTimeout(() => {
+      clicoIntroductionTimers.delete(b);
+      showClicoIntroduction(b);
+    }, 1200));
   }
   function attachFabHover(b) {
     if (b.dataset.hoverReady) return;
     b.dataset.hoverReady = "true";
-    b.addEventListener("mouseenter", () => { if (!run.busy && b.dataset.dragging !== "true") expandActionFab(b); });
-    b.addEventListener("mouseleave", () => { if (!run.busy && b.dataset.dragging !== "true") collapseActionFab(b); });
+    b.addEventListener("mouseenter", () => {
+      if (!run.busy && b.dataset.dragging !== "true") { expandActionFab(b); Clico.setState(b, "hover"); queueClicoIntroduction(b); }
+    });
+    b.addEventListener("mouseleave", () => {
+      removeClicoIntroduction(b);
+      if (!run.busy && b.dataset.dragging !== "true") { collapseActionFab(b); Clico.setState(b, "idle"); }
+    });
   }
   function attachDraggableFab(b, key) {
     if (b.dataset.dragReady) return;
@@ -848,7 +972,9 @@
     };
     b.addEventListener("pointerdown", (e) => {
       if (run.busy || e.button !== 0 || !e.isPrimary) return;
+      removeClicoIntroduction(b);
       collapseActionFab(b);
+      Clico.setState(b, "idle");
       gesture = { id: e.pointerId, x: e.clientX, y: e.clientY, right: parseFloat(b.style.right) || 0, bottom: parseFloat(b.style.bottom) || 0, dragged: false };
       try { b.setPointerCapture(e.pointerId); } catch {}
     });
@@ -867,40 +993,21 @@
     }, true);
   }
 
-  function ensureApplyEffects() {
-    if (document.getElementById("pf-sp-apply-effects")) return;
-    const style = document.createElement("style");
-    style.id = "pf-sp-apply-effects";
-    style.textContent = `
-      @keyframes pfsp-flame-outer { 0%,100% { transform:translateY(2px) scaleX(.92) scaleY(.9) rotate(-2deg); opacity:.8 } 42% { transform:translateY(-4px) scaleX(1.06) scaleY(1.14) rotate(3deg); opacity:1 } 70% { transform:translateY(-1px) scaleX(.96) scaleY(1.02) rotate(-1deg); opacity:.92 } }
-      @keyframes pfsp-flame-inner { 0%,100% { transform:translate(1px,2px) scale(.88,.82); opacity:.78 } 48% { transform:translate(-1px,-3px) scale(1.04,1.12); opacity:1 } 76% { transform:translate(1px,0) scale(.94,.96); opacity:.88 } }
-      @keyframes pfsp-flame-spark { 0%,52%,100% { transform:translateY(3px) scale(.7); opacity:0 } 18% { transform:translateY(-7px) scale(1); opacity:.9 } 36% { transform:translateY(-12px) scale(.65); opacity:0 } }
-      @keyframes pfsp-bolt { 0%,100% { transform:scale(1); filter:drop-shadow(0 0 0 rgba(214,240,120,0)) } 44% { transform:scale(1.04); filter:drop-shadow(0 0 4px rgba(214,240,120,.65)) } 48% { transform:scale(.98) } 52% { transform:scale(1.07); filter:drop-shadow(0 0 7px rgba(255,205,78,.8)) } 58% { transform:scale(1) } }
-      .pf-sp-apply-flames { position:absolute; left:4px; top:-27px; width:44px; height:35px; pointer-events:none; z-index:0; transform-origin:50% 100%; }
-      .pf-sp-apply-flames .outer { transform-origin:50% 100%; animation:pfsp-flame-outer 1.65s ease-in-out infinite; }
-      .pf-sp-apply-flames .inner { transform-origin:50% 100%; animation:pfsp-flame-inner 1.13s ease-in-out infinite; }
-      .pf-sp-apply-flames .spark { animation:pfsp-flame-spark 2.4s ease-out infinite; }
-      .pf-sp-apply-flames .spark.two { animation-delay:-1.16s; }
-      .pf-sp-action-icon { position:relative; z-index:1; animation:pfsp-bolt 2.85s ease-in-out infinite; transform-origin:center; }
-      @media (prefers-reduced-motion: reduce) { .pf-sp-apply-flames *, .pf-sp-action-icon { animation:none !important; } }
-    `;
-    document.head.appendChild(style);
-  }
-
   function setApplyButton(b, profileName) {
     if (!b.querySelector(".pf-sp-apply-icon")) {
-      ensureApplyEffects();
-      b.innerHTML = '<span class="pf-sp-apply-flames" aria-hidden="true"><svg viewBox="0 0 44 35" width="44" height="35" fill="none"><path class="outer" d="M8 33c-3-8 3-14 8-17-1 5 3 5 2 0 6 4 10-5 8-13 9 7 12 15 8 23-3 6-9 8-15 8-5 0-10-1-13-1Z" fill="#f59e0b"/><path class="inner" d="M16 33c-2-5 1-9 5-12-1 4 3 3 3-2 5 4 6 9 3 12-2 2-6 3-11 2Z" fill="#fde047"/><circle class="spark" cx="11" cy="10" r="1.5" fill="#fbbf24"/><circle class="spark two" cx="31" cy="15" r="1.2" fill="#fde68a"/></svg></span>' +
-        '<span class="pf-sp-apply-icon pf-sp-action-icon" style="display:grid;place-items:center;min-width:52px;height:52px;font-size:23px;line-height:1">&#9889;</span>' +
-        '<span class="pf-sp-apply-copy" style="display:block;min-width:0;width:0;opacity:0;overflow:hidden;transition:opacity .15s ease;width .2s ease">' +
+      b.innerHTML = '<span class="pf-sp-apply-copy" style="display:block;min-width:0;width:0;opacity:0;overflow:hidden;transition:opacity .15s ease,width .2s ease">' +
         '<span class="pf-sp-apply-title" style="display:block;white-space:nowrap;font-weight:700">&#9889; Apply prices + settings</span>' +
-        '<span class="pf-sp-apply-profile" style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#d6f078;margin-top:2px"></span></span>';
+        '<span class="pf-sp-apply-profile" style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#d6f078;margin-top:2px"></span></span>' +
+        Clico.markup("pf-sp-apply-icon");
       attachFabHover(b);
+      Clico.setState(b, "idle");
     }
     if (!run.busy) {
-      collapseActionFab(b);
       const copy = b.querySelector(".pf-sp-apply-copy"), title = b.querySelector(".pf-sp-apply-title");
-      if (copy) { copy.style.width = "0"; copy.style.opacity = "0"; }
+      if (!b.matches(":hover") && b.dataset.dragging !== "true") {
+        collapseActionFab(b);
+        if (copy) { copy.style.width = "0"; copy.style.opacity = "0"; }
+      }
       if (title) title.textContent = "⚡ Apply prices + settings";
     }
     const profile = b.querySelector(".pf-sp-apply-profile");
@@ -909,15 +1016,14 @@
 
   function setEditorFab(b, count, profileName) {
     if (!b.querySelector(".pf-sp-editor-icon")) {
-      ensureApplyEffects();
-      b.innerHTML = '<span class="pf-sp-apply-flames" aria-hidden="true"><svg viewBox="0 0 44 35" width="44" height="35" fill="none"><path class="outer" d="M8 33c-3-8 3-14 8-17-1 5 3 5 2 0 6 4 10-5 8-13 9 7 12 15 8 23-3 6-9 8-15 8-5 0-10-1-13-1Z" fill="#f59e0b"/><path class="inner" d="M16 33c-2-5 1-9 5-12-1 4 3 3 3-2 5 4 6 9 3 12-2 2-6 3-11 2Z" fill="#fde047"/><circle class="spark" cx="11" cy="10" r="1.5" fill="#fbbf24"/><circle class="spark two" cx="31" cy="15" r="1.2" fill="#fde68a"/></svg></span>' +
-        '<span class="pf-sp-editor-icon pf-sp-action-icon" style="display:grid;place-items:center;min-width:52px;height:52px"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#d6f078" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + ICONS.check + '</svg></span>' +
-        '<span class="pf-sp-apply-copy" style="display:block;min-width:0;width:0;opacity:0;overflow:hidden;transition:opacity .15s ease,width .2s ease">' +
+      b.innerHTML = '<span class="pf-sp-apply-copy" style="display:block;min-width:0;width:0;opacity:0;overflow:hidden;transition:opacity .15s ease,width .2s ease">' +
         '<span class="pf-sp-apply-title" style="display:block;white-space:nowrap;font-weight:700"></span>' +
-        '<span class="pf-sp-apply-profile" style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#d6f078;margin-top:2px"></span></span>';
+        '<span class="pf-sp-apply-profile" style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#d6f078;margin-top:2px"></span></span>' +
+        Clico.markup("pf-sp-editor-icon");
       attachFabHover(b);
+      Clico.setState(b, "idle");
     }
-    if (!run.busy) collapseActionFab(b);
+    if (!run.busy && !b.matches(":hover") && b.dataset.dragging !== "true") collapseActionFab(b);
     const title = b.querySelector(".pf-sp-apply-title"), profile = b.querySelector(".pf-sp-apply-profile");
     if (title) title.textContent = `Select ${count} variants`;
     if (profile) { profile.textContent = profileName || ""; profile.title = profileName || ""; }
@@ -926,6 +1032,7 @@
   function actionFabProgress(b, text) {
     if (!b) return;
     const title = b.querySelector(".pf-sp-apply-title"), profile = b.querySelector(".pf-sp-apply-profile");
+    Clico.setState(b, "working");
     expandActionFab(b);
     if (title) title.textContent = text + "  ·  ✕ stop";
     if (profile) profile.textContent = "";
@@ -1065,30 +1172,138 @@
   chrome.storage.onChanged.addListener(() => updateNamesLabel());
 
   // ---------- Toast + floating button ----------
-  function toast(text, ok = true) {
+  function clearToastPositioning(t) {
+    t?._positionObserver?.disconnect();
+    if (t) { delete t._positionObserver; delete t._clicoOwner; }
+  }
+  function dismissToast(t = document.getElementById("pf-sp-toast")) {
+    if (!t) return;
+    clearTimeout(t._h); clearTimeout(t._remove);
+    clearToastPositioning(t);
+    t.remove();
+  }
+  function dismissClicoBubble(owner) {
+    const t = document.getElementById("pf-sp-toast");
+    if (t?.dataset.presentation === "clico" && (!owner || t._clicoOwner === owner)) dismissToast(t);
+  }
+  function bubbleDuration(outcome) {
+    return { success: 5500, cancelled: 4000, error: 5000, partial: 8000 }[outcome] || 5500;
+  }
+  function positionClicoBubble(owner) {
+    const t = document.getElementById("pf-sp-toast");
+    if (!t || t.dataset.presentation !== "clico" || t._clicoOwner !== owner || !owner.isConnected) return;
+    const mascot = owner.querySelector(".pf-sp-clico") || owner;
+    const artwork = mascot.querySelector("svg") || mascot;
+    const artworkRect = artwork.getBoundingClientRect();
+    const flame = mascot.querySelector(".pf-sp-clico-flame-outer");
+    const character = mascot.querySelector(".pf-sp-clico-character");
+    const flameRect = flame?.getBoundingClientRect();
+    const characterRect = character?.getBoundingClientRect();
+    const visibleFlameTop = flameRect?.height ? flameRect.top : artworkRect.top;
+    const visibleCharacterBottom = characterRect?.height ? characterRect.bottom : artworkRect.bottom;
+    const margin = 8, tailReach = 12, tailGap = 3;
+    const bubbleWidth = t.offsetWidth, bubbleHeight = t.offsetHeight;
+    const targetX = artworkRect.left + artworkRect.width / 2;
+    const left = clamp(targetX - bubbleWidth / 2, margin, Math.max(margin, window.innerWidth - bubbleWidth - margin));
+    // Use painted SVG path bounds: the SVG box includes transparent viewBox
+    // space and misses transforms applied to Clico's animated character.
+    const aboveTop = visibleFlameTop - tailGap - tailReach - bubbleHeight;
+    const belowTop = visibleCharacterBottom + tailGap + tailReach;
+    const fitsAbove = aboveTop >= margin;
+    const fitsBelow = belowTop + bubbleHeight <= window.innerHeight - margin;
+    const below = !fitsAbove && (fitsBelow || (window.innerHeight - belowTop > visibleFlameTop - margin));
+    const availableHeight = below ? window.innerHeight - belowTop - margin : visibleFlameTop - tailGap - tailReach - margin;
+    const needsHeightFallback = bubbleHeight > availableHeight;
+    t.style.left = left + "px";
+    t.style.top = Math.max(margin, below ? belowTop : aboveTop) + "px";
+    t.style.maxHeight = needsHeightFallback ? Math.max(0, availableHeight) + "px" : "none";
+    t.style.overflowY = needsHeightFallback ? "auto" : "visible";
+    t.dataset.bubbleSide = below ? "below" : "above";
+    const tail = t.querySelector(".pf-sp-toast-tail"), fill = t.querySelector(".pf-sp-toast-tail-fill");
+    const tailLeft = clamp(targetX - left - 9, 12, Math.max(12, bubbleWidth - 30));
+    if (tail && fill) {
+      Object.assign(tail.style, below
+        ? { left: tailLeft + "px", top: "-12px", bottom: "auto", clipPath: "polygon(50% 0, 0 100%, 100% 100%)" }
+        : { left: tailLeft + "px", top: "auto", bottom: "-12px", clipPath: "polygon(0 0, 100% 0, 50% 100%)" });
+      Object.assign(fill.style, below
+        ? { left: tailLeft + 1 + "px", top: "-10px", bottom: "auto", clipPath: "polygon(50% 0, 0 100%, 100% 100%)" }
+        : { left: tailLeft + 1 + "px", top: "auto", bottom: "-10px", clipPath: "polygon(0 0, 100% 0, 50% 100%)" });
+    }
+  }
+  function scheduleToastDismiss(t, duration) {
+    clearTimeout(t._h); clearTimeout(t._remove);
+    t._h = setTimeout(() => {
+      t.style.opacity = "0";
+      t.style.pointerEvents = "none";
+      t._remove = setTimeout(() => dismissToast(t), 300);
+    }, duration);
+  }
+  function toast(text, ok = true, config) {
     let t = document.getElementById("pf-sp-toast");
     if (!t) {
       t = document.createElement("div");
       t.id = "pf-sp-toast";
+      // General toasts remain clickable; Clico bubbles disable pointer events below.
+      t.addEventListener("click", () => dismissToast(t));
+      document.body.appendChild(t);
+    }
+    clearTimeout(t._h); clearTimeout(t._remove); clearToastPositioning(t);
+    const isClicoBubble = config?.presentation === "clico" && config.owner?.isConnected;
+    t.style.cssText = "";
+    t.style.opacity = "1";
+    if (!isClicoBubble) {
+      delete t.dataset.presentation; delete t.dataset.bubbleSide;
+      t.removeAttribute("role"); t.removeAttribute("aria-live");
       Object.assign(t.style, {
         position: "fixed", right: "24px", bottom: "150px", zIndex: 2147483647, maxWidth: "340px",
         padding: "12px 14px", borderRadius: "10px", font: "500 13px/1.45 system-ui, sans-serif",
-        boxShadow: "0 6px 24px rgba(0,0,0,.25)", transition: "opacity .2s"
+        boxShadow: "0 6px 24px rgba(0,0,0,.25)", transition: "opacity .2s", cursor: "pointer",
+        background: ok ? "#263428" : "#7a1f1f", color: "#fff"
       });
-      // click the message to close it
-      t.addEventListener("click", () => t.remove());
-      t.style.cursor = "pointer";
       t.title = "Click to close";
-      document.body.appendChild(t);
+      t.textContent = text;
+      placeOurs();
+      scheduleToastDismiss(t, 7000);
+      return;
     }
-    placeOurs();
-    t.style.background = ok ? "#263428" : "#7a1f1f";
-    t.style.color = "#fff";
-    t.textContent = text;
-    t.style.opacity = "1";
-    clearTimeout(t._h);
-    // fade out, then remove it so it never blocks clicks on the page underneath
-    t._h = setTimeout(() => { t.style.opacity = "0"; t.style.pointerEvents = "none"; setTimeout(() => t.remove(), 300); }, 7000);
+    t.dataset.presentation = "clico";
+    t.setAttribute("role", "status"); t.setAttribute("aria-live", "polite");
+    t.removeAttribute("title");
+    Object.assign(t.style, {
+      position: "fixed", zIndex: 2147483647, width: "max-content", maxWidth: "min(320px, calc(100vw - 16px))",
+      padding: "16px 20px", border: "none", borderRadius: "38px",
+      background: "#263428", color: "#FFFFFF", font: "600 12px/1.45 system-ui, sans-serif",
+      boxShadow: "0 4px 14px rgba(20,36,24,.22)", pointerEvents: "none", transition: matchMedia("(prefers-reduced-motion: reduce)").matches ? "none" : "opacity .16s ease",
+      overflowWrap: "anywhere"
+    });
+    const body = document.createElement("span");
+    const label = document.createElement("span");
+    label.textContent = "CLICO SAYS";
+    label.setAttribute("aria-hidden", "true");
+    Object.assign(label.style, { display: "block", marginBottom: "3px", color: "#B9E66F", fontSize: "10px", fontWeight: "700", letterSpacing: ".8px", lineHeight: "1.15" });
+    const message = document.createElement("span");
+    message.textContent = text;
+    body.append(label, message);
+    const tail = document.createElement("span"), fill = document.createElement("span");
+    tail.className = "pf-sp-toast-tail"; fill.className = "pf-sp-toast-tail-fill";
+    Object.assign(tail.style, { position: "absolute", width: "18px", height: "14px", background: "#263428", pointerEvents: "none" });
+    Object.assign(fill.style, { display: "none", background: "#263428", pointerEvents: "none" });
+    t.replaceChildren(body, tail, fill);
+    t._clicoOwner = config.owner;
+    t._positionObserver = new ResizeObserver(() => positionClicoBubble(config.owner));
+    t._positionObserver.observe(config.owner);
+    const mascot = config.owner.querySelector(".pf-sp-clico");
+    if (mascot) t._positionObserver.observe(mascot);
+    positionClicoBubble(config.owner);
+    scheduleToastDismiss(t, bubbleDuration(config.outcome));
+  }
+  function clicoOutcomeToast(owner, text, outcome) {
+    removeAllClicoIntroductions();
+    toast(text, outcome !== "error", { presentation: "clico", owner, outcome });
+  }
+  function clicoFailureOutcome(error) {
+    // Keep the same cancellation contract used by ClickAwayClico.failure().
+    return /^Stopped\b/.test(error?.message || "") ? "cancelled" : "error";
   }
 
   async function activeProfile() {
@@ -1316,7 +1531,6 @@
 
   async function updateButtonLabel() {
     const p = await activeProfile();
-    const short = p.name.length > 22 ? p.name.slice(0, 21) + "…" : p.name;
     if (run.busy) return;
     const linked = (await linkCheck().catch(() => ({ ok: false }))).ok;
     const b = document.getElementById("pf-sp-btn");
@@ -1351,8 +1565,8 @@
     b.addEventListener("click", async () => {
       try {
         const r = await runJob(b, () => { progress("Starting"); return applyPricesAndPublishing(); });
-        if (r) toast(`Prices applied. Hide in store ${r.hide}; show all variants ${r.variants}. Settings are updated in the current form.`);
-      } catch (e) { toast(e.message, false); }
+        if (r) { Clico.success(b); clicoOutcomeToast(b, `Prices applied. Hide in store ${r.hide}; show all variants ${r.variants}. Settings are updated in the current form.`, "success"); }
+      } catch (e) { Clico.failure(b, e); clicoOutcomeToast(b, e.message, clicoFailureOutcome(e)); }
     });
     document.body.appendChild(b);
     restoreFabPosition(b, "pricing");
@@ -1424,7 +1638,13 @@
   function cleanupDead() {
     clearInterval(window.__pfSP.timer);
     window.__pfSP.obs?.disconnect();
-    ["pf-sp-btn", "pf-sp-cbtn", "pf-sp-nbtn"].forEach((id) => document.getElementById(id)?.remove());
+    dismissClicoBubble();
+    ["pf-sp-btn", "pf-sp-cbtn", "pf-sp-nbtn"].forEach((id) => {
+      const button = document.getElementById(id);
+      removeClicoIntroduction(button);
+      Clico.cleanup(button);
+      button?.remove();
+    });
   }
   function scheduleRefresh(delay = 600) {
     if (refreshT) return;
@@ -1439,8 +1659,8 @@
     const onProduct = /product-details|products\/.+|\/app\/editor\//.test(path);
     const onEditPage = /\/app\/product-details\//.test(path);   // pricing table lives here
     const onEditor = /\/app\/editor\//.test(path);
-    if (onEditPage) addButton(); else document.getElementById("pf-sp-btn")?.remove();
-    if (onEditor) { addColorButton(); placeOurs(); } else document.getElementById("pf-sp-cbtn")?.remove();
+    if (onEditPage) addButton(); else { const b = document.getElementById("pf-sp-btn"); dismissClicoBubble(b); removeClicoIntroduction(b); Clico.cleanup(b); b?.remove(); }
+    if (onEditor) { addColorButton(); placeOurs(); } else { const b = document.getElementById("pf-sp-cbtn"); dismissClicoBubble(b); removeClicoIntroduction(b); Clico.cleanup(b); b?.remove(); }
     if (onMultiPage()) { addNamesButton(); updateNamesLabel(); } else document.getElementById("pf-sp-nbtn")?.remove();
     if (!onProduct) return;
     // the product name loads a bit after the page; keep looking for it for a while
@@ -1464,7 +1684,7 @@
       lastPath = location.pathname;
       routeAt = Date.now();
       namesCache = { path: "", at: 0, names: [] };
-      if (!run.busy) document.getElementById("pf-sp-toast")?.remove();
+      if (!run.busy) dismissToast();
       clearTimeout(refreshT); refreshT = 0;
       scheduleRefresh(150);
     }
@@ -1478,8 +1698,8 @@
     if (msg?.type === "PF_COLORS") {
       if (run.busy) { reply({ ok: false, message: "Already working. Wait for it to finish." }); return; }
       runJob(document.getElementById("pf-sp-cbtn"), async () => { await autoSelect(true).catch(() => {}); await mustBeLinked(); return selectColors(msg.colors); })
-        .then((r) => { const m = colorSummary(r, msg.label); toast(m, r.done.length > 0); reply({ ok: r.done.length > 0, message: m }); })
-        .catch(async (e) => { try { await cdp({ cdp: "detach" }); } catch {} toast(e.message, false); reply({ ok: false, message: e.message }); });
+        .then((r) => { const button = document.getElementById("pf-sp-cbtn"), ok = r.done.length > 0, m = colorSummary(r, msg.label); Clico.outcome(button, ok); clicoOutcomeToast(button, m, ok ? (r.missing.length ? "partial" : "success") : "error"); reply({ ok, message: m }); })
+        .catch(async (e) => { try { await cdp({ cdp: "detach" }); } catch {} const button = document.getElementById("pf-sp-cbtn"); Clico.failure(button, e); clicoOutcomeToast(button, e.message, clicoFailureOutcome(e)); reply({ ok: false, message: e.message }); });
       return true;
     }
     if (msg?.type === "PF_NAMES_READ") {
@@ -1504,8 +1724,8 @@
     if (msg?.type === "PF_APPLY") {
       if (run.busy) { reply({ ok: false, message: "Already working. Wait for it to finish." }); return; }
       runJob(document.getElementById("pf-sp-btn"), async () => { await autoSelect(true).catch(() => {}); await mustBeLinked(); return applyPrices(msg.prices, msg.sizes); })
-        .then((res) => { const m = summary(res); toast(m); reply({ ok: true, message: m }); })
-        .catch((e) => { toast(e.message, false); reply({ ok: false, message: e.message }); });
+        .then((res) => { const button = document.getElementById("pf-sp-btn"), ok = !res.failed.length, m = summary(res); Clico.outcome(button, ok); clicoOutcomeToast(button, m, ok ? "success" : "partial"); reply({ ok: true, message: m }); })
+        .catch((e) => { const button = document.getElementById("pf-sp-btn"); Clico.failure(button, e); clicoOutcomeToast(button, e.message, clicoFailureOutcome(e)); reply({ ok: false, message: e.message }); });
       return true;
     }
   });

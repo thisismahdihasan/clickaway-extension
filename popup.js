@@ -563,13 +563,63 @@ saveBtn.addEventListener("click", async () => {
 });
 
 // ----- apply -----
+// Keep these values and the required method list in sync with clico.js/content.js.
+// API version changes only for public-contract changes; revision changes for every
+// Clico JS or CSS update. A known stale revision requires a tab reload because
+// JavaScript checks cannot prove an already-injected stylesheet is current.
+const CLICO_API_VERSION = 3;
+const CLICO_COMPONENT_REVISION = 12;
+const CLICO_METHODS = ["markup", "setState", "success", "outcome", "failure", "cleanup"];
+const CLICO_RELOAD_MESSAGE = "ClickAway was updated. Reload this Printify tab before continuing.";
+
+async function clicoStatus(tabId) {
+  const [injection] = await chrome.scripting.executeScript({
+    target: { tabId },
+    world: "ISOLATED",
+    func: (version, revision, methods) => {
+      const api = globalThis.ClickAwayClico;
+      if (!api) return "missing";
+      return api.version === version && api.revision === revision && methods.every((method) => typeof api[method] === "function")
+        ? "current"
+        : "stale";
+    },
+    args: [CLICO_API_VERSION, CLICO_COMPONENT_REVISION, CLICO_METHODS]
+  });
+  return injection?.result || "missing";
+}
+async function hasClicoApi(tabId) {
+  return (await clicoStatus(tabId)) === "current";
+}
+async function requireCurrentClico(tabId) {
+  const status = await clicoStatus(tabId);
+  if (status === "stale") throw new Error(CLICO_RELOAD_MESSAGE);
+  if (status === "missing") await injectPageScripts(tabId);
+}
+async function injectPageScripts(tabId) {
+  const status = await clicoStatus(tabId);
+  if (status === "stale") throw new Error(CLICO_RELOAD_MESSAGE);
+  // Normal manifest loading supplies Clico first. This fallback only initializes
+  // a missing component; it deliberately does not hot-swap a known stale one.
+  if (status === "missing") {
+    await chrome.scripting.insertCSS({ target: { tabId }, files: ["components/clico/clico.css"] });
+    await chrome.scripting.executeScript({ target: { tabId }, world: "ISOLATED", files: ["components/clico/clico.js"] });
+  }
+  if (!await hasClicoApi(tabId)) {
+    const message = "ClickAway could not initialize the Clico component. Reload the extension and the Printify tab, then try again.";
+    console.error(`[ClickAway] ${message}`);
+    throw new Error(message);
+  }
+  await chrome.scripting.executeScript({ target: { tabId }, world: "ISOLATED", files: ["content.js"] });
+}
+
 async function withPage(msg) {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (!tab?.url?.startsWith("https://printify.com/")) throw new Error("Open your Printify product pricing page first.");
+  await requireCurrentClico(tab.id);
   const send = () => chrome.tabs.sendMessage(tab.id, msg);
   try { return await send(); }
   catch {
-    await chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ["content.js"] });
+    await injectPageScripts(tab.id);
     return await send();
   }
 }
@@ -759,13 +809,14 @@ $("startNew").addEventListener("click", () => $("newP").click());
   try {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     if (tab?.url?.startsWith("https://printify.com/app/")) {
+      await requireCurrentClico(tab.id);
       const ask = () => Promise.race([
         chrome.tabs.sendMessage(tab.id, { type: "PF_PAGE" }),
         new Promise((_, no) => setTimeout(() => no(new Error("timeout")), 1500))
       ]);
       try { page = await ask(); }
       catch {
-        await chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ["content.js"] });
+        await injectPageScripts(tab.id);
         page = await ask();
       }
       page.url = new URL(tab.url).pathname;
@@ -780,5 +831,7 @@ $("startNew").addEventListener("click", () => $("newP").click());
         showStatus();
       }
     }
-  } catch {}
+  } catch (e) {
+    if (e?.message === CLICO_RELOAD_MESSAGE) setStatus(e.message, "err");
+  }
 })();

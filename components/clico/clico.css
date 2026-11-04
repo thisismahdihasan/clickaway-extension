@@ -1,0 +1,584 @@
+@keyframes pfsp-clico-breathe {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-.8px) scale(1.014, .991); }
+}
+@keyframes pfsp-clico-flame {
+  0%, 100% { transform: rotate(-2deg) scale(.97, 1); }
+  42% { transform: translateY(-1.5px) rotate(3deg) scale(1.04, 1.09); }
+  72% { transform: translateY(-.4px) rotate(-1deg) scale(.99, 1.04); }
+}
+@keyframes pfsp-clico-flame-middle {
+  0%, 100% { transform: scale(.98, .96) rotate(1deg); }
+  52% { transform: translateY(-1px) scale(1.03, 1.08) rotate(-2deg); }
+}
+@keyframes pfsp-clico-blink {
+  0%, 45%, 49%, 100% { transform: scaleY(1); }
+  47% { transform: scaleY(.08); }
+}
+@keyframes pfsp-clico-look {
+  0%, 32%, 100% { transform: translateX(0); }
+  38%, 48% { transform: translateX(-1.3px); }
+  58%, 68% { transform: translateX(1.3px); }
+  75% { transform: translateX(0); }
+}
+@keyframes pfsp-clico-curious-brow {
+  0%, 74%, 100% { opacity: 0; transform: translateY(0) rotate(0); }
+  77%, 86% { opacity: .72; transform: translateY(-1px) rotate(-6deg); }
+  90% { opacity: 0; transform: translateY(0) rotate(0); }
+}
+@keyframes pfsp-clico-sleepy-lids {
+  0%, 82%, 100% { opacity: 0; }
+  86%, 91% { opacity: .72; }
+  95% { opacity: 0; }
+}
+@keyframes pfsp-clico-focus {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-1px); }
+}
+@keyframes pfsp-clico-focus-eyes {
+  0%, 100% { transform: scale(.98, .76) translateY(.55px); }
+  50% { transform: scale(.98, .72) translateY(.8px); }
+}
+@keyframes pfsp-clico-working-glasses {
+  0% { transform: translateY(0); }
+  24% { transform: translateY(-2.2px); }
+  58% { transform: translateY(.25px); }
+  100% { transform: translateY(0); }
+}
+@keyframes pfsp-clico-working-adjust-glasses {
+  0%, 24% { transform: translateY(0) rotate(0); }
+  46% { transform: translateY(-2px) rotate(-1deg); }
+  72% { transform: translateY(.25px) rotate(0); }
+  100% { transform: translateY(0) rotate(0); }
+}
+@keyframes pfsp-clico-working-adjust-arm {
+  0%, 24% { transform: translate(0) rotate(0); }
+  49%, 69% { transform: translate(-7px, -14px) rotate(-30deg); }
+  100% { transform: translate(0) rotate(0); }
+}
+@keyframes pfsp-clico-working-check {
+  0%, 12% { transform: translateX(0); }
+  33% { transform: translateX(-1.15px); }
+  73% { transform: translateX(1.15px); }
+  100% { transform: translateX(0); }
+}
+@keyframes pfsp-clico-idle-look-around {
+  0%, 22% { transform: translateX(-2.3px); }
+  40%, 48% { transform: translateX(0); }
+  65%, 80% { transform: translateX(2.3px); }
+  100% { transform: translateX(0); }
+}
+@keyframes pfsp-clico-idle-glasses {
+  0%, 24% { transform: translateY(0); }
+  40%, 65% { transform: translateY(-2.8px) rotate(-1.5deg); }
+  82% { transform: translateY(.2px); }
+  100% { transform: translateY(0); }
+}
+@keyframes pfsp-clico-idle-arm {
+  0%, 24% { transform: translate(0) rotate(0); }
+  40%, 70% { transform: translate(-8px, -16px) rotate(-34deg); }
+  100% { transform: translate(0) rotate(0); }
+}
+@keyframes pfsp-clico-idle-surprise {
+  0%, 100% { transform: translateY(0); }
+  28% { transform: translateY(-1.8px) scale(1.015); }
+  58% { transform: translateY(.3px); }
+}
+@keyframes pfsp-clico-idle-flame-dip {
+  0%, 100% { transform: scale(1); }
+  25%, 80% { transform: translateY(1px) scale(.92, .8); }
+}
+@keyframes pfsp-clico-idle-proud {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-2px) rotate(-1deg); }
+}
+@keyframes pfsp-clico-hover {
+  0%, 100% { transform: translateY(-5px) rotate(-5deg) scale(1); }
+  50% { transform: translateY(-5.35px) rotate(-5.8deg) scale(1.006, .997); }
+}
+@keyframes pfsp-clico-success {
+  0%, 100% { transform: translateY(0) scale(1); }
+  9% { transform: translateY(-6px) scale(1.045, .97); }
+  18% { transform: translateY(1px) scale(.985, 1.025); }
+  29% { transform: translateY(-3px) scale(1.018); }
+  40% { transform: translateY(-1px); }
+  52% { transform: translateY(0); }
+}
+@keyframes pfsp-clico-cool-glasses {
+  0%, 31% { transform: translateY(0); }
+  48% { transform: translateY(-1.8px) rotate(-1deg); }
+  72% { transform: translateY(.2px) rotate(0); }
+  100% { transform: translateY(0); }
+}
+@keyframes pfsp-clico-cool-arm {
+  0%, 31% { transform: translate(0) rotate(0); }
+  51%, 72% { transform: translate(-7px, -14px) rotate(-30deg); }
+  100% { transform: translate(0) rotate(0); }
+}
+@keyframes pfsp-clico-shy {
+  0% { transform: translateY(0) rotate(0); }
+  45% { transform: translateY(1px) rotate(3deg); }
+  100% { transform: translateY(.6px) rotate(2deg); }
+}
+@keyframes pfsp-clico-proud {
+  0% { transform: translateY(0) scale(1); }
+  40% { transform: translateY(-2px) scale(1.015); }
+  100% { transform: translateY(-1px) scale(1.01); }
+}
+@keyframes pfsp-clico-excitement {
+  0%, 100% { transform: translateY(0) scale(1); }
+  18% { transform: translateY(-4px) scale(1.04, .97); }
+  36% { transform: translateY(1px) scale(.98, 1.03); }
+  55% { transform: translateY(-1px) scale(1.01); }
+}
+@keyframes pfsp-clico-oops {
+  0%, 12%, 100% { transform: translateY(0) rotate(0); }
+  22% { transform: translateY(-1.5px) rotate(-2deg); }
+  34% { transform: translateY(.5px) rotate(1deg); }
+}
+@keyframes pfsp-clico-oops-eyes {
+  0%, 10% { transform: scale(1); }
+  18%, 28% { transform: scale(1.2, 1.17); }
+  42%, 100% { transform: scale(1.02, 1.01); }
+}
+@keyframes pfsp-clico-oops-mouth-o {
+  0%, 8% { opacity: 0; transform: scale(.65); }
+  14%, 26% { opacity: 1; transform: scale(1); }
+  38%, 100% { opacity: 0; transform: scale(.8); }
+}
+@keyframes pfsp-clico-oops-smile {
+  0%, 30% { opacity: 0; transform: translateY(.5px) scale(.8); }
+  43%, 100% { opacity: 1; transform: translateY(.5px) scale(1); }
+}
+@keyframes pfsp-clico-sleepy-stop {
+  0% { transform: translateY(0); }
+  38% { transform: translateY(1.5px) rotate(1deg); }
+  100% { transform: translateY(1px) rotate(.6deg); }
+}
+@keyframes pfsp-clico-sleepy-stop-eyes {
+  0% { transform: scale(1); }
+  38% { transform: scale(.98, .78) translateY(.8px); }
+  100% { transform: scale(.98, .7) translateY(1px); }
+}
+@keyframes pfsp-clico-startle {
+  0%, 21%, 38%, 100% { transform: translate(0) rotate(0); }
+  23% { transform: translate(-2px, -1px) rotate(-3deg); }
+  27% { transform: translate(2px, 0) rotate(3deg); }
+  31% { transform: translate(-2px, -1px) rotate(-2deg); }
+  35% { transform: translate(1px, 0) rotate(2deg); }
+}
+@keyframes pfsp-clico-sparkle {
+  0%, 100% { opacity: 0; transform: scale(.25) rotate(0); }
+  35%, 68% { opacity: 1; transform: scale(1) rotate(35deg); }
+}
+@keyframes pfsp-clico-crack {
+  0% { opacity: 1; stroke-dashoffset: 24; }
+  9%, 60% { opacity: 1; stroke-dashoffset: 0; }
+  64%, 100% { opacity: 0; stroke-dashoffset: 0; }
+}
+@keyframes pfsp-clico-repair {
+  0%, 34%, 100% { opacity: 0; transform: scale(.2) rotate(0); }
+  42%, 57% { opacity: 1; transform: scale(1) rotate(35deg); }
+  64% { opacity: 0; transform: scale(.5) rotate(55deg); }
+}
+@keyframes pfsp-clico-error-mouth {
+  0%, 8% { opacity: 0; transform: scale(.6); }
+  10%, 21% { opacity: 1; transform: scale(1); }
+  28%, 100% { opacity: 0; transform: scale(.65); }
+}
+@keyframes pfsp-clico-error-flame {
+  0%, 7%, 100% { transform: scale(1); }
+  10%, 21% { transform: translateY(2px) scale(.72, .62); }
+  60% { transform: scale(.94, .9); }
+  80% { transform: scale(1.04, 1.02); }
+}
+@keyframes pfsp-clico-error-eyes {
+  0%, 8% { transform: scale(1); }
+  10%, 21% { transform: scale(1.14, 1.12); }
+  28%, 100% { transform: scale(1); }
+}
+@keyframes pfsp-clico-error-glasses {
+  0%, 34% { transform: translateY(0) rotate(0); }
+  42%, 57% { transform: translateY(-.4px) rotate(-2.2deg); }
+  68% { transform: translateY(0) rotate(.8deg); }
+  80%, 100% { transform: translateY(0) rotate(0); }
+}
+@keyframes pfsp-clico-repair-hand {
+  0%, 34%, 100% { transform: translate(0) rotate(0); }
+  42%, 60% { transform: translate(-8px, -16px) rotate(-34deg); }
+  70% { transform: translate(-2px, -4px) rotate(-10deg); }
+}
+@keyframes pfsp-clico-error-smile {
+  0%, 80% { opacity: 0; transform: scale(.7); }
+  88%, 100% { opacity: 1; transform: scale(1); }
+}
+@keyframes pfsp-clico-cancelled {
+  0%, 100% { transform: translateY(1px); }
+  45% { transform: translateY(2px) scale(.995, .985); }
+}
+@keyframes pfsp-clico-cancelled-flame {
+  0%, 100% { transform: scale(.86, .8) rotate(-1deg); }
+  50% { transform: translateY(1px) scale(.8, .72) rotate(1deg); }
+}
+
+.pf-sp-clico, .pf-sp-clico * { pointer-events: none !important; }
+.pf-sp-clico {
+  position: relative;
+  display: block;
+  min-width: 52px;
+  width: 52px;
+  height: 52px;
+  flex: none;
+  order: -1;
+  z-index: 2;
+  pointer-events: auto !important;
+}
+.pf-sp-clico::before {
+  content: "";
+  position: absolute;
+  left: -8px;
+  top: -24px;
+  width: 60px;
+  height: 24px;
+  pointer-events: auto !important;
+  z-index: 3;
+}
+.pf-sp-clico svg,
+.pf-sp-clico svg * {
+  pointer-events: none !important;
+}
+.pf-sp-clico svg {
+  position: absolute;
+  left: -2px;
+  bottom: 4px;
+  width: 54px;
+  height: 64px;
+  overflow: visible;
+  filter: drop-shadow(0 3px 3px rgba(16, 28, 18, .28));
+}
+.pf-sp-clico-character {
+  transform-origin: 28px 52px;
+  animation: pfsp-clico-breathe 3.6s ease-in-out infinite;
+}
+.pf-sp-clico-hair {
+  transform-origin: 28px 27px;
+  animation: pfsp-clico-flame 1.5s ease-in-out infinite;
+  filter: drop-shadow(0 1px 1px rgba(91, 34, 47, .22));
+}
+.pf-sp-clico-flame-middle {
+  transform-origin: 29px 27px;
+  animation: pfsp-clico-flame-middle 1.18s ease-in-out infinite;
+}
+.pf-sp-clico-eyes {
+  transform-origin: 28px 40px;
+  animation: pfsp-clico-blink 6.2s ease-in-out infinite;
+}
+.pf-sp-clico-sleepy-lids {
+  fill: none;
+  stroke: #708c38;
+  stroke-width: 2.1;
+  stroke-linecap: round;
+  opacity: 0;
+  animation: pfsp-clico-sleepy-lids 28s ease-in-out infinite;
+}
+.pf-sp-clico-eyes > ellipse { fill: #fbfff2; stroke: #6c843e; stroke-width: .35; }
+.pf-sp-clico-pupils { animation: pfsp-clico-look 8.8s ease-in-out infinite; }
+.pf-sp-clico-pupils ellipse { fill: #10213c; }
+.pf-sp-clico-pupils circle { fill: #fff; }
+.pf-sp-clico-glasses {
+  fill: none;
+  stroke: #121d38;
+  stroke-width: 2.45;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.pf-sp-clico-glasses .pf-sp-clico-lens { stroke-width: 2.45; }
+.pf-sp-clico-lens-glint { fill: none; stroke: #9af2ff; stroke-width: 1.05; opacity: .78; }
+.pf-sp-clico-bridge { stroke-width: 2.3; }
+.pf-sp-clico-nose {
+  fill: none;
+  stroke: #60792d;
+  stroke-width: 1.3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.pf-sp-clico-cheek { fill: #f37f86; opacity: .27; }
+.pf-sp-clico-arm path {
+  fill: none;
+  stroke: #17243b;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+.pf-sp-clico-arm circle { fill: #d9f57b; stroke: #17243b; stroke-width: 1.4; }
+.pf-sp-clico-arm {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform .18s ease;
+}
+.pf-sp-clico-mouth {
+  fill: none;
+  stroke: #263426;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+}
+.pf-sp-clico-mouth-o { fill: #263426; }
+.pf-sp-clico-mouth-open-grin { fill: #263426; opacity: 0; }
+.pf-sp-clico-mouth-grin-highlight {
+  fill: none;
+  stroke: #f8ffd6;
+  stroke-width: 1.1;
+  stroke-linecap: round;
+  opacity: 0;
+}
+.pf-sp-clico-brow {
+  fill: none;
+  stroke: #15223a;
+  stroke-width: 1.65;
+  stroke-linecap: round;
+}
+.pf-sp-clico-happy-eyes {
+  fill: none;
+  stroke: #15223a;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+}
+.pf-sp-clico-crack {
+  fill: none;
+  stroke: #101a31;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 24;
+  stroke-dashoffset: 24;
+}
+.pf-sp-clico-repair-glint { fill: #d6fbff; stroke: #176e92; stroke-width: .65; transform-origin: 43px 35px; }
+.pf-sp-clico-sparkles { fill: #fff176; stroke: #815b17; stroke-width: .7; }
+.pf-sp-clico-happy-eyes,
+.pf-sp-clico-mouth-focus,
+.pf-sp-clico-mouth-smile,
+.pf-sp-clico-mouth-grin,
+.pf-sp-clico-mouth-frown,
+.pf-sp-clico-mouth-open-grin,
+.pf-sp-clico-mouth-grin-highlight,
+.pf-sp-clico-mouth-o,
+.pf-sp-clico-crack,
+.pf-sp-clico-repair-glint,
+.pf-sp-clico-brow,
+.pf-sp-clico-sparkles { opacity: 0; }
+.pf-sp-clico-mouth-idle,
+.pf-sp-clico-mouth-focus,
+.pf-sp-clico-mouth-smile,
+.pf-sp-clico-mouth-grin,
+.pf-sp-clico-mouth-frown,
+.pf-sp-clico-mouth-open-grin,
+.pf-sp-clico-mouth-grin-highlight,
+.pf-sp-clico-mouth-o,
+.pf-sp-clico-happy-eyes { transition: opacity .14s ease; }
+.pf-sp-clico-brow { animation: pfsp-clico-curious-brow 15s ease-in-out infinite; }
+[data-clico-state="hover"] .pf-sp-clico-sleepy-lids,
+[data-clico-state="working"] .pf-sp-clico-sleepy-lids,
+[data-clico-state="success"] .pf-sp-clico-sleepy-lids,
+[data-clico-state="error"] .pf-sp-clico-sleepy-lids,
+[data-clico-state="cancelled"] .pf-sp-clico-sleepy-lids { animation: none; opacity: 0; }
+[data-clico-state="success"] .pf-sp-clico-brow,
+[data-clico-state="error"] .pf-sp-clico-brow,
+[data-clico-state="cancelled"] .pf-sp-clico-brow { animation: none; opacity: 0; }
+
+/* Idle 01 is the unmodified classic face; the scheduler applies 02–10 briefly. */
+/* Suppress baseline micro-expressions only during the nine scheduled reactions. */
+[data-clico-state="idle"][data-clico-idle-variant]:where(:not([data-clico-idle-variant="classic-idle"])) .pf-sp-clico-eyes { animation: none; }
+[data-clico-state="idle"][data-clico-idle-variant]:where(:not([data-clico-idle-variant="classic-idle"])) .pf-sp-clico-pupils { animation: none; }
+[data-clico-state="idle"][data-clico-idle-variant]:where(:not([data-clico-idle-variant="classic-idle"])) .pf-sp-clico-brow { animation: none; opacity: 0; }
+[data-clico-state="idle"][data-clico-idle-variant]:where(:not([data-clico-idle-variant="classic-idle"])) .pf-sp-clico-sleepy-lids { animation: none; opacity: 0; }
+[data-clico-state="idle"][data-clico-idle-variant="curious-look"] .pf-sp-clico-pupils { animation: none; transform: translateX(2.3px); }
+[data-clico-state="idle"][data-clico-idle-variant="curious-look"] .pf-sp-clico-brow-right { opacity: 1; animation: none; stroke-width: 2.5; transform: translateY(-3.5px) rotate(-18deg); transform-origin: 36px 31px; }
+[data-clico-state="idle"][data-clico-idle-variant="curious-look"] .pf-sp-clico-mouth-idle { opacity: 0; }
+[data-clico-state="idle"][data-clico-idle-variant="curious-look"] .pf-sp-clico-mouth-smile { opacity: 1; transform: translateY(.4px) rotate(-9deg) scale(.85, 1.1); transform-origin: 28px 50px; }
+[data-clico-state="idle"][data-clico-idle-variant="look-around"] .pf-sp-clico-pupils { animation: pfsp-clico-idle-look-around 1.6s ease-in-out 1; }
+[data-clico-state="idle"][data-clico-idle-variant="sleepy-clico"] .pf-sp-clico-eyes { animation: none; transform: scale(1, .52) translateY(1px); }
+[data-clico-state="idle"][data-clico-idle-variant="sleepy-clico"] .pf-sp-clico-pupils { animation: none; transform: translateY(.3px); }
+[data-clico-state="idle"][data-clico-idle-variant="sleepy-clico"] .pf-sp-clico-sleepy-lids { animation: none; opacity: 1; }
+[data-clico-state="idle"][data-clico-idle-variant="sleepy-clico"] .pf-sp-clico-mouth-idle { opacity: 0; }
+[data-clico-state="idle"][data-clico-idle-variant="sleepy-clico"] .pf-sp-clico-mouth-o { opacity: 1; transform-origin: 28px 49.8px; transform: scale(1.25, 1.2); }
+[data-clico-state="idle"][data-clico-idle-variant="sleepy-clico"] .pf-sp-clico-hair { animation: pfsp-clico-idle-flame-dip 1.6s ease-in-out both; }
+[data-clico-state="idle"][data-clico-idle-variant="cheeky-smile"] .pf-sp-clico-brow-right { opacity: 1; animation: none; stroke-width: 2.4; transform: translateY(-3px) rotate(-16deg); transform-origin: 36px 31px; }
+[data-clico-state="idle"][data-clico-idle-variant="cheeky-smile"] .pf-sp-clico-mouth-idle { opacity: 0; }
+[data-clico-state="idle"][data-clico-idle-variant="cheeky-smile"] .pf-sp-clico-mouth-grin { opacity: 1; stroke-width: 2.3; transform: translateY(-.2px) rotate(-10deg) scale(.95, 1.05); transform-origin: 28px 50px; }
+[data-clico-state="idle"][data-clico-idle-variant="cheeky-smile"] .pf-sp-clico-cheek { opacity: .78; }
+[data-clico-state="idle"][data-clico-idle-variant="glasses-fix"] .pf-sp-clico-pupils { animation: none; transform: translateX(.1px); }
+[data-clico-state="idle"][data-clico-idle-variant="glasses-fix"] .pf-sp-clico-glasses { animation: pfsp-clico-idle-glasses 1.6s ease-out 1; transform-origin: 28px 39px; }
+[data-clico-state="idle"][data-clico-idle-variant="glasses-fix"] .pf-sp-clico-arm-right { animation: pfsp-clico-idle-arm 1.6s ease-out 1; }
+[data-clico-state="idle"][data-clico-idle-variant="thinking"] .pf-sp-clico-pupils { animation: none; transform: translate(.7px, -2px); }
+[data-clico-state="idle"][data-clico-idle-variant="thinking"] .pf-sp-clico-brow-right { opacity: 1; animation: none; stroke-width: 2.4; transform: translateY(-3px) rotate(-17deg); transform-origin: 36px 31px; }
+[data-clico-state="idle"][data-clico-idle-variant="thinking"] .pf-sp-clico-mouth-idle { opacity: 0; }
+[data-clico-state="idle"][data-clico-idle-variant="thinking"] .pf-sp-clico-mouth-focus { opacity: 1; stroke-width: 2.4; transform: translate(.8px, .6px) rotate(-10deg) scale(.8, 1.3); transform-origin: 28px 50px; }
+[data-clico-state="idle"][data-clico-idle-variant="tiny-surprise"] .pf-sp-clico-character { animation: pfsp-clico-idle-surprise .8s ease-out 1; }
+[data-clico-state="idle"][data-clico-idle-variant="tiny-surprise"] .pf-sp-clico-eyes { animation: none; transform: scale(1.22, 1.2); }
+[data-clico-state="idle"][data-clico-idle-variant="tiny-surprise"] .pf-sp-clico-pupils { animation: none; transform: translateY(.1px); }
+[data-clico-state="idle"][data-clico-idle-variant="tiny-surprise"] .pf-sp-clico-brow-left,
+[data-clico-state="idle"][data-clico-idle-variant="tiny-surprise"] .pf-sp-clico-brow-right { opacity: 1; animation: none; stroke-width: 2.4; transform: translateY(-3.2px); }
+[data-clico-state="idle"][data-clico-idle-variant="tiny-surprise"] .pf-sp-clico-mouth-idle { opacity: 0; }
+[data-clico-state="idle"][data-clico-idle-variant="tiny-surprise"] .pf-sp-clico-mouth-o { opacity: 1; transform-origin: 28px 49.8px; transform: scale(1.35); }
+[data-clico-state="idle"][data-clico-idle-variant="proud-pose"] .pf-sp-clico-character { animation: pfsp-clico-idle-proud .6s ease-out both; }
+[data-clico-state="idle"][data-clico-idle-variant="proud-pose"] .pf-sp-clico-brow-left,
+[data-clico-state="idle"][data-clico-idle-variant="proud-pose"] .pf-sp-clico-brow-right { opacity: 1; animation: none; stroke-width: 2.3; transform: translateY(-2.8px); }
+[data-clico-state="idle"][data-clico-idle-variant="proud-pose"] .pf-sp-clico-mouth-idle { opacity: 0; }
+[data-clico-state="idle"][data-clico-idle-variant="proud-pose"] .pf-sp-clico-mouth-grin { opacity: 1; stroke-width: 2.2; transform: translateY(-.2px) scale(1.06); transform-origin: 28px 50px; }
+[data-clico-state="idle"][data-clico-idle-variant="playful-wink"] .pf-sp-clico-eyes { animation: none; }
+[data-clico-state="idle"][data-clico-idle-variant="playful-wink"] .pf-sp-clico-eyes > ellipse:first-child { opacity: 0; }
+[data-clico-state="idle"][data-clico-idle-variant="playful-wink"] .pf-sp-clico-happy-eyes { opacity: 1; stroke-width: 2.5; }
+[data-clico-state="idle"][data-clico-idle-variant="playful-wink"] .pf-sp-clico-happy-eyes > path:last-child { opacity: 0; }
+[data-clico-state="idle"][data-clico-idle-variant="playful-wink"] .pf-sp-clico-pupils { animation: none; }
+[data-clico-state="idle"][data-clico-idle-variant="playful-wink"] .pf-sp-clico-pupils > ellipse:first-child,
+[data-clico-state="idle"][data-clico-idle-variant="playful-wink"] .pf-sp-clico-pupils > circle:first-of-type { opacity: 0; }
+[data-clico-state="idle"][data-clico-idle-variant="playful-wink"] .pf-sp-clico-mouth-idle { opacity: 0; }
+[data-clico-state="idle"][data-clico-idle-variant="playful-wink"] .pf-sp-clico-mouth-grin { opacity: 1; stroke-width: 2.2; transform: translateY(.2px) rotate(-8deg); transform-origin: 28px 50px; }
+
+[data-clico-state="idle"][data-clico-idle-variant="thinking"] .pf-sp-clico-character { animation: none; transform: rotate(-2deg); }
+[data-clico-state="idle"][data-clico-idle-variant="glasses-fix"] .pf-sp-clico-eyes { transform: scale(1.08, .85); }
+
+[data-clico-state="hover"] .pf-sp-clico-character { animation: pfsp-clico-hover 2.8s ease-in-out infinite; }
+[data-clico-state="hover"] .pf-sp-clico-arm-left { transform: translate(5px, -27px) rotate(-18deg); }
+[data-clico-state="hover"] .pf-sp-clico-arm-right { transform: translate(-5px, -27px) rotate(18deg); }
+[data-clico-state="hover"] .pf-sp-clico-brow { animation: none; opacity: 0; }
+[data-clico-state="hover"] .pf-sp-clico-eyes { animation: none; transform: scale(1.12, 1.1) translateY(-.2px); }
+[data-clico-state="hover"] .pf-sp-clico-brow-left { opacity: 1; stroke-width: 2.1; transform: translateY(-2px) rotate(12deg); transform-origin: 22px 31px; }
+[data-clico-state="hover"] .pf-sp-clico-brow-right { opacity: 1; stroke-width: 2.1; transform: translateY(-3px) rotate(-15deg); transform-origin: 36px 31px; }
+[data-clico-state="hover"] .pf-sp-clico-glasses { transform: rotate(-2deg); transform-origin: 28px 39px; }
+[data-clico-state="hover"] .pf-sp-clico-mouth-idle { opacity: 0; }
+[data-clico-state="hover"] .pf-sp-clico-mouth-smile { opacity: 0; }
+[data-clico-state="hover"] .pf-sp-clico-mouth-open-grin,
+[data-clico-state="hover"] .pf-sp-clico-mouth-grin-highlight { opacity: 1; }
+[data-clico-state="hover"] .pf-sp-clico-cheek { opacity: .58; }
+[data-clico-state="working"] .pf-sp-clico-character { animation: pfsp-clico-focus .72s ease-in-out infinite; }
+[data-clico-state="working"] .pf-sp-clico-hair { animation-duration: .7s; filter: brightness(1.28) saturate(1.14) drop-shadow(0 0 2px rgba(255, 201, 73, .7)); }
+[data-clico-state="working"] .pf-sp-clico-flame-middle { animation-duration: .55s; filter: brightness(1.2) saturate(1.1); }
+[data-clico-state="working"] .pf-sp-clico-eyes { animation: none; transform: scale(.98, .68) translateY(.9px); }
+[data-clico-state="working"] .pf-sp-clico-pupils { animation: none; transform: translateY(.1px); }
+[data-clico-state="working"] .pf-sp-clico-brow { opacity: 1; animation: none; }
+[data-clico-state="working"] .pf-sp-clico-brow-left { stroke-width: 2.25; transform: translateY(.9px) rotate(18deg); transform-origin: 23px 32px; }
+[data-clico-state="working"] .pf-sp-clico-brow-right { stroke-width: 2.25; transform: translateY(.9px) rotate(-18deg); transform-origin: 33px 32px; }
+[data-clico-state="working"] .pf-sp-clico-glasses { animation: pfsp-clico-working-glasses .45s ease-out both; transform-origin: 28px 39px; }
+[data-clico-state="working"] .pf-sp-clico-mouth-idle { opacity: 0; }
+[data-clico-state="working"] .pf-sp-clico-mouth-smile,
+[data-clico-state="working"] .pf-sp-clico-mouth-open-grin { opacity: 0; }
+[data-clico-state="working"] .pf-sp-clico-mouth-focus { opacity: 1; stroke-width: 2.35; transform: translateY(.25px); }
+[data-clico-state="working"][data-clico-working-variant="glasses-adjust"] .pf-sp-clico-eyes { animation: none; transform: scale(.99, .86) translateY(.35px); }
+[data-clico-state="working"][data-clico-working-variant="glasses-adjust"] .pf-sp-clico-pupils { animation: none; transform: translateX(.2px); }
+[data-clico-state="working"][data-clico-working-variant="glasses-adjust"] .pf-sp-clico-brow-left { stroke-width: 2.2; transform: translateY(.9px) rotate(18deg); transform-origin: 23px 32px; }
+[data-clico-state="working"][data-clico-working-variant="glasses-adjust"] .pf-sp-clico-brow-right { stroke-width: 2.3; transform: translateY(-1.8px) rotate(-12deg); transform-origin: 36px 31px; }
+[data-clico-state="working"][data-clico-working-variant="glasses-adjust"] .pf-sp-clico-mouth-focus { stroke-width: 2.45; transform: translateY(.1px) rotate(-2deg); transform-origin: 28px 50px; }
+[data-clico-state="working"][data-clico-working-variant="glasses-adjust"] .pf-sp-clico-glasses { animation: pfsp-clico-working-adjust-glasses 1.1s ease-out 1; }
+[data-clico-state="working"][data-clico-working-variant="glasses-adjust"] .pf-sp-clico-arm-right { animation: pfsp-clico-working-adjust-arm 1.1s ease-out 1; }
+[data-clico-state="working"][data-clico-working-variant="checking-details"] .pf-sp-clico-eyes { animation: none; transform: scale(.99, .86) translateY(.3px); }
+[data-clico-state="working"][data-clico-working-variant="checking-details"] .pf-sp-clico-pupils { animation: pfsp-clico-working-check 1.5s ease-out both; }
+[data-clico-state="working"][data-clico-working-variant="checking-details"] .pf-sp-clico-brow-left { stroke-width: 2.2; transform: translateY(.8px) rotate(16deg); transform-origin: 23px 32px; }
+[data-clico-state="working"][data-clico-working-variant="checking-details"] .pf-sp-clico-brow-right { stroke-width: 2.2; transform: translateY(.8px) rotate(-16deg); transform-origin: 33px 32px; }
+[data-clico-state="working"][data-clico-working-variant="checking-details"] .pf-sp-clico-mouth-focus { stroke-width: 2.45; transform: translateY(.45px); }
+[data-clico-state="success"] .pf-sp-clico-character { animation: pfsp-clico-success 1.15s ease-out 1; }
+[data-clico-state="success"] .pf-sp-clico-pupils,
+[data-clico-state="success"] .pf-sp-clico-mouth-idle { opacity: 0; }
+[data-clico-state="success"] .pf-sp-clico-happy-eyes,
+[data-clico-state="success"] .pf-sp-clico-mouth-grin { opacity: 1; }
+[data-clico-state="success"] .pf-sp-clico-mouth-smile { opacity: 0; }
+[data-clico-state="success"] .pf-sp-clico-hair { filter: brightness(1.35) drop-shadow(0 0 3px #ffe66d); }
+[data-clico-state="success"] .pf-sp-clico-cheek { opacity: .42; }
+[data-clico-state="success"] .pf-sp-clico-sparkles { animation: pfsp-clico-sparkle 1.4s ease-out 1; }
+[data-clico-state="success"][data-clico-success-variant="cool-victory"] .pf-sp-clico-character { animation: none; }
+[data-clico-state="success"][data-clico-success-variant="cool-victory"] .pf-sp-clico-eyes { animation: none; transform: scale(1.04, 1.02); }
+[data-clico-state="success"][data-clico-success-variant="cool-victory"] .pf-sp-clico-pupils { opacity: 1; animation: none; transform: translateX(.25px); }
+[data-clico-state="success"][data-clico-success-variant="cool-victory"] .pf-sp-clico-happy-eyes,
+[data-clico-state="success"][data-clico-success-variant="cool-victory"] .pf-sp-clico-mouth-grin,
+[data-clico-state="success"][data-clico-success-variant="cool-victory"] .pf-sp-clico-sparkles { opacity: 0; animation: none; }
+[data-clico-state="success"][data-clico-success-variant="cool-victory"] .pf-sp-clico-mouth-smile { opacity: 1; stroke-width: 2.1; transform: translateY(.15px) rotate(-7deg) scale(1.07); transform-origin: 28px 50px; }
+[data-clico-state="success"][data-clico-success-variant="cool-victory"] .pf-sp-clico-brow-right { opacity: 1; animation: none; stroke-width: 2.35; transform: translateY(-2.7px) rotate(-18deg); transform-origin: 36px 31px; }
+[data-clico-state="success"][data-clico-success-variant="cool-victory"] .pf-sp-clico-glasses { animation: pfsp-clico-cool-glasses 1.1s ease-out 1; transform-origin: 28px 39px; }
+[data-clico-state="success"][data-clico-success-variant="cool-victory"] .pf-sp-clico-arm-right { animation: pfsp-clico-cool-arm 1.1s ease-out 1; }
+[data-clico-state="success"][data-clico-success-variant="cool-victory"] .pf-sp-clico-hair { filter: drop-shadow(0 1px 1px rgba(91, 34, 47, .22)); }
+[data-clico-state="success"][data-clico-success-variant="cool-victory"] .pf-sp-clico-cheek { opacity: .32; }
+[data-clico-state="success"][data-clico-success-variant="shy-happiness"] .pf-sp-clico-character { animation: pfsp-clico-shy .9s ease-out both; }
+[data-clico-state="success"][data-clico-success-variant="shy-happiness"] .pf-sp-clico-eyes { animation: none; transform: scale(.98, .95) translateY(.4px); }
+[data-clico-state="success"][data-clico-success-variant="shy-happiness"] .pf-sp-clico-pupils { opacity: 1; animation: none; transform: translateY(1.55px); }
+[data-clico-state="success"][data-clico-success-variant="shy-happiness"] .pf-sp-clico-happy-eyes,
+[data-clico-state="success"][data-clico-success-variant="shy-happiness"] .pf-sp-clico-mouth-grin,
+[data-clico-state="success"][data-clico-success-variant="shy-happiness"] .pf-sp-clico-sparkles { opacity: 0; animation: none; }
+[data-clico-state="success"][data-clico-success-variant="shy-happiness"] .pf-sp-clico-mouth-smile { opacity: 1; stroke-width: 2; transform: translateY(.7px) rotate(2deg) scale(.96); transform-origin: 28px 50px; }
+[data-clico-state="success"][data-clico-success-variant="shy-happiness"] .pf-sp-clico-cheek { opacity: .82; }
+[data-clico-state="success"][data-clico-success-variant="shy-happiness"] .pf-sp-clico-hair { filter: drop-shadow(0 1px 1px rgba(91, 34, 47, .22)); }
+[data-clico-state="success"][data-clico-success-variant="proud-clico"] .pf-sp-clico-character { animation: pfsp-clico-proud .9s ease-out both; }
+[data-clico-state="success"][data-clico-success-variant="proud-clico"] .pf-sp-clico-eyes { animation: none; transform: scale(1.04, 1.02); }
+[data-clico-state="success"][data-clico-success-variant="proud-clico"] .pf-sp-clico-pupils { opacity: 1; animation: none; transform: translateX(.2px); }
+[data-clico-state="success"][data-clico-success-variant="proud-clico"] .pf-sp-clico-happy-eyes,
+[data-clico-state="success"][data-clico-success-variant="proud-clico"] .pf-sp-clico-sparkles { opacity: 0; animation: none; }
+[data-clico-state="success"][data-clico-success-variant="proud-clico"] .pf-sp-clico-brow-left,
+[data-clico-state="success"][data-clico-success-variant="proud-clico"] .pf-sp-clico-brow-right { opacity: 1; animation: none; stroke-width: 2; transform: translateY(-2px); }
+[data-clico-state="success"][data-clico-success-variant="proud-clico"] .pf-sp-clico-mouth-grin { opacity: 1; stroke-width: 2; }
+[data-clico-state="success"][data-clico-success-variant="proud-clico"] .pf-sp-clico-hair { filter: drop-shadow(0 1px 1px rgba(91, 34, 47, .22)); }
+[data-clico-state="success"][data-clico-success-variant="big-excitement"] .pf-sp-clico-character { animation: pfsp-clico-excitement 1.05s ease-out 1; }
+[data-clico-state="success"][data-clico-success-variant="big-excitement"] .pf-sp-clico-eyes { animation: none; transform: scale(1.18, 1.18) translateY(-.2px); }
+[data-clico-state="success"][data-clico-success-variant="big-excitement"] .pf-sp-clico-pupils { opacity: 1; animation: none; transform: translateY(.1px); }
+[data-clico-state="success"][data-clico-success-variant="big-excitement"] .pf-sp-clico-happy-eyes,
+[data-clico-state="success"][data-clico-success-variant="big-excitement"] .pf-sp-clico-mouth-grin,
+[data-clico-state="success"][data-clico-success-variant="big-excitement"] .pf-sp-clico-sparkles { opacity: 0; animation: none; }
+[data-clico-state="success"][data-clico-success-variant="big-excitement"] .pf-sp-clico-mouth-open-grin { opacity: 1; transform: translateY(.2px) scale(1.06); transform-origin: 28px 49px; }
+[data-clico-state="success"][data-clico-success-variant="big-excitement"] .pf-sp-clico-hair { animation-duration: .58s; filter: brightness(1.2) saturate(1.14) drop-shadow(0 0 2px rgba(255, 201, 73, .65)); }
+[data-clico-state="success"][data-clico-success-variant="big-excitement"] .pf-sp-clico-flame-middle { animation-duration: .46s; }
+[data-clico-state="error"] .pf-sp-clico-character { animation: pfsp-clico-startle 4s ease-out 1; }
+[data-clico-state="error"] .pf-sp-clico-eyes { animation: pfsp-clico-error-eyes 4s ease-out 1; }
+[data-clico-state="error"] .pf-sp-clico-glasses { animation: pfsp-clico-error-glasses 4s ease-out 1; transform-origin: 28px 39px; }
+[data-clico-state="error"] .pf-sp-clico-mouth-idle { opacity: 0; }
+[data-clico-state="error"] .pf-sp-clico-mouth-o { opacity: 1; animation: pfsp-clico-error-mouth 4s ease-out 1; }
+[data-clico-state="error"] .pf-sp-clico-mouth-smile { animation: pfsp-clico-error-smile 4s ease-out 1; }
+[data-clico-state="error"] .pf-sp-clico-crack { opacity: 1; animation: pfsp-clico-crack 4s ease-out 1; }
+[data-clico-state="error"] .pf-sp-clico-repair-glint { animation: pfsp-clico-repair 4s ease-out 1; }
+[data-clico-state="error"] .pf-sp-clico-arm-right { animation: pfsp-clico-repair-hand 4s ease-out 1; }
+[data-clico-state="error"] .pf-sp-clico-hair { animation: pfsp-clico-error-flame 4s ease-out 1; }
+[data-clico-state="cancelled"] .pf-sp-clico-character { animation: pfsp-clico-cancelled 1.05s ease-in-out 1; }
+[data-clico-state="cancelled"] .pf-sp-clico-mouth-idle { opacity: .3; }
+[data-clico-state="cancelled"] .pf-sp-clico-mouth-frown { opacity: 1; }
+[data-clico-state="cancelled"] .pf-sp-clico-hair { animation: pfsp-clico-cancelled-flame 1.6s ease-in-out infinite; }
+[data-clico-state="cancelled"][data-clico-cancelled-variant="oops"] .pf-sp-clico-character { animation: pfsp-clico-oops .85s ease-out 1; }
+[data-clico-state="cancelled"][data-clico-cancelled-variant="oops"] .pf-sp-clico-eyes { animation: pfsp-clico-oops-eyes .9s ease-out both; }
+[data-clico-state="cancelled"][data-clico-cancelled-variant="oops"] .pf-sp-clico-mouth-idle,
+[data-clico-state="cancelled"][data-clico-cancelled-variant="oops"] .pf-sp-clico-mouth-frown { opacity: 0; }
+[data-clico-state="cancelled"][data-clico-cancelled-variant="oops"] .pf-sp-clico-mouth-o { animation: pfsp-clico-oops-mouth-o .9s ease-out 1; }
+[data-clico-state="cancelled"][data-clico-cancelled-variant="oops"] .pf-sp-clico-mouth-smile { animation: pfsp-clico-oops-smile .9s ease-out both; }
+[data-clico-state="cancelled"][data-clico-cancelled-variant="sleepy-stop"] .pf-sp-clico-character { animation: pfsp-clico-sleepy-stop 1.1s ease-out both; }
+[data-clico-state="cancelled"][data-clico-cancelled-variant="sleepy-stop"] .pf-sp-clico-eyes { animation: pfsp-clico-sleepy-stop-eyes 1.1s ease-out both; }
+[data-clico-state="cancelled"][data-clico-cancelled-variant="sleepy-stop"] .pf-sp-clico-pupils { animation: none; transform: translateY(.8px); }
+[data-clico-state="cancelled"][data-clico-cancelled-variant="sleepy-stop"] .pf-sp-clico-sleepy-lids { opacity: .74; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pf-sp-clico *,
+  .pf-sp-clico-character,
+  .pf-sp-clico-hair,
+  .pf-sp-clico-eyes,
+  .pf-sp-clico-pupils,
+  .pf-sp-clico-sparkles {
+    animation: none !important;
+    transition: none !important;
+  }
+  [data-clico-state="hover"] .pf-sp-clico-character,
+  [data-clico-state="success"] .pf-sp-clico-character,
+  [data-clico-state="error"] .pf-sp-clico-character,
+  [data-clico-state="cancelled"] .pf-sp-clico-character { transform: none; }
+  [data-clico-state="error"] .pf-sp-clico-crack { opacity: 1; stroke-dashoffset: 0; }
+  [data-clico-state="error"] .pf-sp-clico-mouth-o { opacity: 1; transform: none; }
+  [data-clico-state="success"] .pf-sp-clico-happy-eyes,
+  [data-clico-state="success"] .pf-sp-clico-mouth-grin,
+  [data-clico-state="cancelled"] .pf-sp-clico-mouth-frown { opacity: 1; }
+  [data-clico-state="success"][data-clico-success-variant="cool-victory"] .pf-sp-clico-happy-eyes,
+  [data-clico-state="success"][data-clico-success-variant="shy-happiness"] .pf-sp-clico-happy-eyes,
+  [data-clico-state="success"][data-clico-success-variant="shy-happiness"] .pf-sp-clico-mouth-grin,
+  [data-clico-state="success"][data-clico-success-variant="proud-clico"] .pf-sp-clico-happy-eyes,
+  [data-clico-state="success"][data-clico-success-variant="big-excitement"] .pf-sp-clico-happy-eyes,
+  [data-clico-state="success"][data-clico-success-variant="big-excitement"] .pf-sp-clico-mouth-grin { opacity: 0; }
+  [data-clico-state="success"][data-clico-success-variant="cool-victory"] .pf-sp-clico-mouth-smile,
+  [data-clico-state="success"][data-clico-success-variant="shy-happiness"] .pf-sp-clico-mouth-smile,
+  [data-clico-state="success"][data-clico-success-variant="big-excitement"] .pf-sp-clico-mouth-open-grin { opacity: 1; }
+  [data-clico-state="cancelled"][data-clico-cancelled-variant="oops"] .pf-sp-clico-mouth-frown,
+  [data-clico-state="cancelled"][data-clico-cancelled-variant="oops"] .pf-sp-clico-mouth-o { opacity: 0; }
+  [data-clico-state="cancelled"][data-clico-cancelled-variant="oops"] .pf-sp-clico-mouth-smile { opacity: 1; }
+  [data-clico-state="cancelled"][data-clico-cancelled-variant="sleepy-stop"] .pf-sp-clico-sleepy-lids { opacity: .74; }
+  [data-clico-state="error"] .pf-sp-clico-arm-right { transform: none; }
+}

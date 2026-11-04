@@ -17,13 +17,14 @@
   button, .filebtn { display:inline-block; padding:10px 16px; border-radius:8px; border:1.5px solid var(--ink);
            background:var(--ink); color:#fff; font:600 14px "Segoe UI", system-ui, sans-serif; cursor:pointer; }
   button.ghost, .filebtn { background:transparent; color:var(--ink); }
+  button.danger { background:#9b1c1c; border-color:#9b1c1c; }
   button:disabled { opacity:.5; cursor:not-allowed; }
   button:focus-visible, .filebtn:focus-within { outline:3px solid var(--lime); outline-offset:2px; }
   .filebtn input { position:absolute; opacity:0; width:1px; height:1px; }
   ul { margin:10px 0 0; padding-left:18px; font-size:14px; }
   .actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:14px; }
   [hidden] { display:none !important; }
-  #status { margin-top:12px; font-size:14px; min-height:20px; }
+  #status, #deleteStatus { margin-top:12px; font-size:14px; min-height:20px; }
   .ok { color:#2f6b35; } .err { color:#9b1c1c; }
 </style>
 </head>
@@ -49,6 +50,13 @@
         <button id="replace" class="ghost">Replace Everything</button>
       </div>
       <div id="status"></div>
+    </section>
+
+    <section>
+      <h2>Delete All Saved Data</h2>
+      <p class="sub">Deletes your saved profiles, prices, variants, notes, links, variation names, and ClickAway preferences from this browser. This is irreversible without a backup. Export a backup first if you may need this data later. Previously downloaded backup files will not be deleted.</p>
+      <button id="deleteAll" class="danger" type="button">Delete All Saved Data</button>
+      <div id="deleteStatus" aria-live="polite"></div>
     </section>
   </main>
   <footer class="wrap" style="text-align:center;color:var(--muted);font-size:13px;padding-bottom:28px">Made with <span style="color: #E53935;">♥</span> by <b style="color:var(--ink)">ClickAway</b></footer>

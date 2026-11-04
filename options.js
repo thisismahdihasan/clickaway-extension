@@ -2,10 +2,13 @@ const $ = (id) => document.getElementById(id);
 const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const uid = () => Math.random().toString(36).slice(2, 10);
 let incoming = null, incomingNames = [];
+const LOCAL_DATA_KEYS = ["profiles", "activeId", "prices", "varNames", "pinned", "fabPositions"];
+const LEGACY_SYNC_KEYS = ["profiles", "activeId", "prices"];
 const cleanNames = (a) => Array.isArray(a) ? a.filter((r) => r && typeof r.from === "string" && typeof r.to === "string" && r.from.trim() && r.to.trim())
   .map((r) => ({ from: r.from.trim(), to: r.to.trim() })) : [];
 
 function setStatus(t, cls = "") { $("status").textContent = t; $("status").className = cls; }
+function setDeleteStatus(t, cls = "") { $("deleteStatus").textContent = t; $("deleteStatus").className = cls; }
 
 async function current() {
   const d = await chrome.storage.local.get(["profiles", "activeId", "varNames"]);
@@ -103,6 +106,29 @@ $("replace").addEventListener("click", async () => {
   setStatus(`Done: your products were replaced with ${incoming.length} from the file.`, "ok");
   $("importActions").hidden = true;
   showSummary();
+});
+
+$("deleteAll").addEventListener("click", async () => {
+  if (!confirm("Delete all saved ClickAway data from this browser? This is irreversible unless you have already exported a backup. Previously downloaded backup files will not be deleted.")) return;
+  const button = $("deleteAll");
+  button.disabled = true;
+  try {
+    await Promise.all([
+      chrome.storage.local.remove(LOCAL_DATA_KEYS),
+      chrome.storage.sync.remove(LEGACY_SYNC_KEYS)
+    ]);
+    const [local, sync] = await Promise.all([
+      chrome.storage.local.get(LOCAL_DATA_KEYS),
+      chrome.storage.sync.get(LEGACY_SYNC_KEYS)
+    ]);
+    const remaining = [...LOCAL_DATA_KEYS.filter((key) => local[key] !== undefined), ...LEGACY_SYNC_KEYS.filter((key) => sync[key] !== undefined)];
+    if (remaining.length) throw new Error("Some saved data could not be removed.");
+    setDeleteStatus("All ClickAway saved data was deleted. ClickAway will now reload to close open views and stop active work.", "ok");
+    setTimeout(() => chrome.runtime.reload(), 750);
+  } catch {
+    setDeleteStatus("Couldn't verify that all saved data was deleted. Check again or try again.", "err");
+    button.disabled = false;
+  }
 });
 
 showSummary();

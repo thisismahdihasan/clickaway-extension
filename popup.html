@@ -1,0 +1,389 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  :root { --ink:#263428; --lime:#d6f078; --paper:#fbfcf7; --line:#d9ddd2; --muted:#6b7468; }
+  * { box-sizing:border-box; }
+  body { margin:0; width:310px; background:var(--paper); color:var(--ink);
+         font:14px/1.4 "Segoe UI", system-ui, sans-serif; }
+  header { background:var(--ink); color:#fff; padding:14px 16px; }
+  header h1 { margin:0; font-size:16px; font-weight:700; }
+  header p { margin:2px 0 0; font-size:12px; color:#c9d3c4; }
+  main { padding:14px 16px 16px; }
+  button { font:inherit; }
+  .product { margin-bottom:12px; padding-bottom:12px; border-bottom:1.5px dashed var(--line); }
+  .product label { display:block; font-size:12px; color:var(--muted); margin-bottom:4px; }
+  .pick { display:flex; gap:6px; }
+  select { flex:1; min-width:0; width:100%; padding:8px 8px; border:1.5px solid var(--ink); border-radius:8px;
+           background:#fff; color:var(--ink); font-family:inherit; font-size:14px; font-weight:600; }
+  button.main.small { width:auto; flex:none; margin:0; padding:8px 12px; border-radius:8px; font-size:13px; }
+  .links { display:flex; gap:14px; margin-top:6px; }
+  .link { background:none; border:0; padding:0; margin:0; width:auto; text-align:left; color:var(--ink);
+          text-decoration:underline; font-size:12.5px; font-weight:500; cursor:pointer; }
+  .link.danger { color:#9b1c1c; }
+  .name-row { display:flex; gap:6px; margin-top:8px; }
+  .name-row[hidden] { display:none; }
+  .name-row input { flex:1; min-width:0; padding:7px 9px; border:1.5px solid var(--ink); border-radius:8px; font:inherit; }
+  .auto { margin-top:10px; padding:8px 10px; background:#eef4e2; border-radius:8px; font-size:12.5px; }
+  .page-line { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  #pageState { margin-bottom:6px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .ok-dot { color:#2f6b35; font-weight:600; }
+  .warn { color:#8a5a00; }
+  .linked { font-size:12px; color:var(--muted); display:flex; flex-wrap:wrap; gap:4px 6px; align-items:center; }
+  #chips { display:contents; }
+  .none { font-style:italic; }
+  .chip { display:inline-flex; align-items:center; gap:2px; background:#fff; border:1px solid var(--line);
+          border-radius:999px; padding:1px 4px 1px 8px; color:var(--ink); max-width:100%; }
+  .chip span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:200px; }
+  .chip button { background:none; border:0; cursor:pointer; color:#9b1c1c; padding:0 3px; font-size:12px; }
+  .backup { display:block; margin-top:10px; }
+  .row { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+  .tag { width:72px; flex:none; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; padding-left:4px !important; padding-right:4px !important; text-align:center; font-weight:700; background:var(--lime);
+         border:1.5px solid var(--ink); border-radius:6px 14px 14px 6px; padding:5px 0; }
+  input.tag { font:inherit; font-weight:700; color:var(--ink); outline:0; min-width:0; }
+  input.tag:focus { box-shadow:0 0 0 3px #eef8c8; }
+  .rm { background:none; border:0; width:26px; height:26px; border-radius:50%; cursor:pointer;
+        color:#9b1c1c; font-size:15px; line-height:1; flex:none; }
+  .rm:hover { background:#f6e3e3; }
+  .size-tools { display:flex; justify-content:space-between; margin:2px 0 8px; }
+  .empty { font-size:12.5px; color:var(--muted); padding:6px 0 10px; }
+  .field { flex:1; display:flex; align-items:center; border:1.5px solid var(--line);
+           border-radius:8px; background:#fff; padding:0 10px; }
+  .field:focus-within { border-color:var(--ink); }
+  .field span { color:var(--muted); font-size:13px; }
+  .field input { flex:1; border:0; outline:0; padding:7px 6px; font:inherit; background:transparent; width:100%; }
+  .field.locked { background:#f0f2ec; border-color:#e3e6de; }
+  .field.locked input { color:#3f4a3d; cursor:default; }
+  button.main { width:100%; margin-top:8px; padding:11px; border:0; border-radius:8px; cursor:pointer;
+           background:var(--ink); color:#fff; font-weight:700; }
+  .fab-reset { width:100%; margin-top:10px; padding:8px; border:1px dashed var(--line); border-radius:8px; background:transparent;
+               color:var(--muted); font-size:12px; font-weight:600; cursor:pointer; }
+  .fab-reset:hover { border-color:var(--ink); color:var(--ink); background:#eef4e2; }
+  button.ghost { background:transparent; color:var(--ink); border:1.5px solid var(--ink); font-weight:600; }
+  .pick { position:relative; }
+  .picker { flex:1; min-width:0; }
+  .pick-btn { width:100%; display:flex; align-items:center; gap:6px; padding:8px 10px; border:1.5px solid var(--ink);
+              border-radius:8px; background:#fff; color:var(--ink); font-weight:600; font-size:14px; cursor:pointer; text-align:left; }
+  .pick-btn #pickName { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .pick-btn .caret { font-size:12px; transition:transform .15s; }
+  .pick-btn[aria-expanded="true"] .caret { transform:rotate(180deg); }
+  .pick-list { position:absolute; left:0; right:0; top:calc(100% + 4px); z-index:20; background:#fff;
+               border:1.5px solid var(--ink); border-radius:8px; box-shadow:0 8px 24px rgba(0,0,0,.18);
+               max-height:220px; overflow:auto; padding:4px; }
+  .pick-opt { display:flex; align-items:center; gap:8px; width:100%; padding:8px 9px; border:0; border-radius:6px;
+              background:none; color:var(--ink); font-size:13.5px; text-align:left; cursor:pointer; }
+  .pick-opt span { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .pick-opt:hover, .pick-opt.hl { background:#eef4e2; }
+  .pick-opt .tick { width:14px; color:#2f6b35; font-weight:700; }
+  .pick-opt small { color:var(--muted); font-size:11px; }
+  button:focus-visible, select:focus-visible { outline:3px solid var(--lime); outline-offset:2px; }
+  button:disabled, select:disabled { opacity:.5; cursor:not-allowed; }
+  .colors { margin:4px 0 10px; padding-top:10px; border-top:1.5px dashed var(--line); }
+  .sec-head { font-size:12px; color:var(--muted); margin-bottom:6px; }
+  #colorChips { display:flex; flex-wrap:wrap; gap:5px; }
+  #colorAddRow { margin-top:8px; }
+  .label-row { display:flex; align-items:center; gap:8px; margin:0 0 8px; font-size:12.5px; }
+  .label-row label { color:var(--muted); white-space:nowrap; }
+  .label-row input { flex:1; min-width:0; padding:6px 9px; border:1.5px solid var(--line); border-radius:8px; font:inherit; }
+  .label-row input:focus { border-color:var(--ink); outline:0; }
+  #colorChips.editing { flex-direction:column; flex-wrap:nowrap; gap:4px; }
+  .crow { display:flex; align-items:center; gap:6px; background:#fff; border:1px solid var(--line);
+          border-radius:8px; padding:3px 4px 3px 8px; }
+  .crow .num { width:18px; font-size:12px; color:var(--muted); font-weight:700; }
+  .crow .cname { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .crow button { width:26px; height:26px; border:0; border-radius:6px; background:#f0f2ec; color:var(--ink);
+                 cursor:pointer; font-size:13px; flex:none; }
+  .crow button:hover:not(:disabled) { background:var(--lime); }
+  .crow button:disabled { opacity:.3; cursor:default; }
+  .crow .rmc { color:#9b1c1c; background:none; }
+  .crow .rmc:hover { background:#f6e3e3 !important; }
+  .chip .n { color:var(--muted); font-weight:600; }
+  button.chip { font:inherit; font-size:13px; cursor:pointer; }
+  button.chip:hover { border-color:var(--ink); }
+  .chip.held { opacity:.5; text-decoration:line-through; text-decoration-thickness:1px; }
+  .crow.held .cname { color:var(--muted); text-decoration:line-through; }
+  .crow .hb { flex:none; font-style:normal; font-size:10.5px; color:#8a5a00; background:#fbf1d9; border-radius:4px; padding:1px 5px; }
+  .crow .hold { color:#8a5a00; }
+  .edit-bar { display:flex; gap:8px; }
+  .empty-state { margin-top:10px; padding:12px; background:#eef4e2; border-radius:8px; font-size:12.5px;
+                 display:flex; flex-direction:column; gap:4px; }
+  .vn { margin-top:12px; padding-top:10px; border-top:1.5px dashed var(--line); }
+  .vn summary { cursor:pointer; list-style:none; display:flex; align-items:baseline; justify-content:space-between; gap:8px;
+                font-size:13px; font-weight:700; }
+  .vn summary::-webkit-details-marker { display:none; }
+  .vn summary > span { flex:1; }
+  .vn summary::after { content:"▾"; font-size:11px; color:var(--muted); }
+  .vn[open] summary::after { content:"▴"; }
+  .vn summary small { flex:1; text-align:right; white-space:nowrap; font-weight:400; font-size:11px; color:var(--muted); }
+  #vnList { margin-top:8px; display:flex; flex-direction:column; gap:4px; }
+  .vn-item { display:flex; gap:6px; align-items:center; font-size:12.5px; background:#fff; border:1px solid var(--line);
+             border-radius:8px; padding:6px 8px; }
+  .vn-item .from { flex:1.3; min-width:0; color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .vn-item .arrow { color:var(--muted); flex:none; }
+  .vn-item .to { flex:1; min-width:0; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .vn-cols { display:flex; gap:6px; margin:8px 26px 4px 0; font-size:11px; color:var(--muted); }
+  .vn-cols span:first-child { flex:1.3; } .vn-cols span:last-child { flex:1; }
+  #vnRows { display:flex; flex-direction:column; gap:5px; }
+  .vn-row { display:flex; gap:6px; align-items:center; }
+  .vn-row input { min-width:0; padding:6px 8px; border:1.5px solid var(--line); border-radius:7px; font:inherit; font-size:12.5px; }
+  .vn-row input:focus { border-color:var(--ink); outline:0; }
+  .vn-row input.f { flex:1.3; } .vn-row input.t { flex:1; font-weight:600; }
+  .vn-tools { display:flex; justify-content:space-between; margin:8px 0 2px; }
+  #vnApply { margin-top:8px; }
+  .vn { margin-top:12px; }
+  .notes { margin-top:12px; padding-top:10px; border-top:1.5px dashed var(--line); }
+  .notes-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; }
+  .notes-head .sec-head { margin:0; }
+  #noteList { display:flex; flex-direction:column; gap:6px; }
+  .note { display:flex; align-items:stretch; border:1.5px solid var(--line); border-radius:8px; background:#fff; overflow:hidden; }
+  .note-copy { flex:1; min-width:0; display:flex; flex-direction:column; gap:1px; padding:7px 10px; border:0; background:none;
+               text-align:left; cursor:pointer; color:var(--ink); }
+  .note-copy:hover { background:#f4f8ea; }
+  .note-top { display:flex; align-items:center; gap:6px; }
+  .note-title { flex:1; min-width:0; font-weight:700; font-size:13px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .note-state { font-size:11px; color:var(--muted); flex:none; }
+  .note.copied { border-color:#2f6b35; }
+  .note.copied .note-state { color:#2f6b35; font-weight:700; }
+  .note-prev { font-size:11.5px; color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .note-edit { flex:none; width:34px; border:0; border-left:1px solid var(--line); background:#f7f8f3; cursor:pointer; color:var(--ink); font-size:13px; }
+  .note-edit:hover { background:var(--lime); }
+  .note-form { margin-top:8px; display:flex; flex-direction:column; gap:6px; }
+  .note-form input, .note-form textarea { width:100%; padding:7px 9px; border:1.5px solid var(--line); border-radius:8px;
+               font:inherit; font-size:13px; color:var(--ink); background:#fff; resize:vertical; }
+  .note-form input:focus, .note-form textarea:focus { border-color:var(--ink); outline:0; }
+  .note-actions { display:flex; align-items:center; gap:6px; }
+  #noteChars { flex:1; font-size:11px; color:var(--muted); text-align:right; }
+  .edit-bar button { margin-top:4px; }
+  [hidden] { display:none !important; }
+  #apply { margin-top:12px; }
+  #status { margin-top:10px; font-size:12.5px; min-height:18px; }
+  #status.err { color:#9b1c1c; } #status.ok { color:#2f6b35; }
+  .credit { margin-top:12px; padding-top:10px; border-top:1.5px dashed var(--line); text-align:center;
+            font-size:11.5px; color:var(--muted); }
+  .credit b { color:var(--ink); font-weight:600; }
+
+  /* ---------- Professional look (v4.5) ---------- */
+  :root { --ink:#1f2b22; --ink2:#2f3d33; --lime:#d6f078; --paper:#f7f8f4; --card:#fff; --line:#e3e6dd; --muted:#6f786c;
+          --ok:#2f6b35; --bad:#b42318; --r:10px; --shadow:0 1px 2px rgba(16,24,18,.06), 0 1px 1px rgba(16,24,18,.04); }
+  body { width:330px; background:var(--paper); font:13.5px/1.45 "Inter","Segoe UI",system-ui,-apple-system,sans-serif;
+         -webkit-font-smoothing:antialiased; }
+  header { display:flex; align-items:center; gap:11px; padding:14px 16px; background:linear-gradient(135deg,#1f2b22,#2d3c31); }
+  header .logo { width:34px; height:34px; flex:none; border-radius:9px; background:var(--lime); color:var(--ink);
+                 display:grid; place-items:center; font-weight:800; font-size:18px; letter-spacing:-.5px; }
+  header h1 { font-size:15.5px; letter-spacing:-.2px; }
+  header h1 span { font-weight:500; color:#b9c6b4; font-size:12.5px; }
+  header p { font-size:11.5px; color:#a9b7a4; margin-top:1px; }
+  main { padding:12px 14px 14px; }
+  .sec, .product label.sec { display:flex; align-items:center; gap:4px; margin:14px 0 7px; font-size:10.5px; font-weight:700;
+         letter-spacing:.08em; text-transform:uppercase; color:var(--muted); }
+  .sec i { font-style:normal; text-transform:none; letter-spacing:0; font-weight:500; }
+  .product label.sec { margin-top:2px; }
+  .notes-head .sec { margin:0; }
+  .product, .colors, .notes, .credit, .vn { border-top:0 !important; border-bottom:0 !important; }
+  .product { margin-bottom:0; padding-bottom:0; }
+  .colors { margin:0 0 8px; padding-top:0; }
+  .notes { margin-top:6px; padding-top:0; }
+  .pick-btn { border:1px solid var(--line); box-shadow:var(--shadow); border-radius:var(--r); padding:9px 11px; font-size:13.5px; }
+  .pick-btn:hover { border-color:#c7ccbf; }
+  .pick-list { border:1px solid var(--line); border-radius:var(--r); }
+  .links { gap:12px; margin-top:7px; }
+  .link { text-decoration:none; font-weight:600; font-size:12px; color:var(--ink2); }
+  .link:hover { text-decoration:underline; }
+  .link.danger { color:var(--bad); }
+  .auto, .empty-state { background:#eef3e4; border:1px solid #e0e8d2; border-radius:var(--r); }
+  .chip { border-color:var(--line); box-shadow:var(--shadow); }
+  .tag { border:0; background:var(--lime); border-radius:8px; width:68px; padding:7px 0; font-size:12.5px; }
+  .field { border:1px solid var(--line); border-radius:8px; box-shadow:var(--shadow); }
+  .field.locked { background:#f3f4f0; border-color:var(--line); box-shadow:none; }
+  .row { margin-bottom:6px; }
+  button.main { border-radius:var(--r); padding:10px; font-weight:650; font-size:13px; display:flex; align-items:center;
+                justify-content:center; gap:7px; transition:background .15s, border-color .15s; }
+  button.main svg, .act svg { width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; flex:none; }
+  button.main:not(.ghost):hover { background:var(--ink2); }
+  button.ghost { border:1px solid var(--line); background:var(--card); box-shadow:var(--shadow); color:var(--ink); }
+  button.ghost:hover { border-color:#c3c9bb; background:#fbfcf9; }
+  button.main.small { padding:8px 12px; border-radius:8px; }
+  .acts { display:flex; flex-direction:column; gap:7px; }
+  .act { width:100%; display:flex; align-items:center; gap:11px; padding:9px 10px; border:0; border-radius:var(--r);
+         background:var(--ink); color:#fff; cursor:pointer; text-align:left; transition:background .15s, transform .05s; }
+  .act:hover { background:var(--ink2); }
+  .act:active { transform:translateY(1px); }
+  .act .ico { width:32px; height:32px; flex:none; border-radius:8px; background:var(--lime); color:var(--ink); display:grid; place-items:center; }
+  .act .ico svg { width:17px; height:17px; }
+  .act .txt { flex:1; min-width:0; display:flex; flex-direction:column; }
+  .act .txt b { font-size:13px; font-weight:650; letter-spacing:-.1px; }
+  .act .txt small { font-size:11px; color:#a9b7a4; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .act .chev { width:15px; height:15px; color:#8c9a88; }
+  .act:disabled { opacity:.45; cursor:not-allowed; }
+  #apply, #vnApply { margin-top:0; }
+  .note, .vn-item, .crow { border:1px solid var(--line); border-radius:9px; box-shadow:var(--shadow); }
+  .vn { margin-top:14px; }
+  .vn summary { font-size:10.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); align-items:center; }
+  #backup { margin-top:12px; }
+  #status { min-height:16px; font-size:12px; }
+  #status:empty { display:none; }
+  .credit { margin-top:12px; padding-top:10px; border-top:1px solid var(--line) !important; font-size:11px; }
+  .empty-state { padding:16px 14px; gap:6px; text-align:center; align-items:center; }
+  .empty-state b { font-size:14.5px; }
+  .empty-state span { color:var(--muted); line-height:1.5; }
+  .empty-state button.main { margin-top:6px; }
+  .empty-state .link { margin-top:4px; }
+  .act.here { outline:2px solid var(--lime); outline-offset:1px; }
+  .vn-legacy { display:flex; flex-direction:column; gap:4px; padding:8px 10px; border-radius:9px; background:#fbf1d9; border:1px solid #f0dfb4; font-size:12px; color:#7a4f00; }
+  .vn-legacy .link { color:#7a4f00; }
+  .acts { margin-bottom:2px; }
+
+  /* ---------- Minimal, lighter look (v4.9) ---------- */
+  body { font-weight:400; }
+  header { background:var(--ink); padding:12px 14px; }
+  header .logo { width:28px; height:28px; flex:none; display:block; object-fit:contain; border-radius:0; background:none; }
+  header h1 { font-size:14.5px; font-weight:600; }
+  .sec, .product label.sec, .vn summary { font-weight:600; font-size:10px; letter-spacing:.07em; color:#8a9386; }
+  .act { background:var(--card); color:var(--ink); border:1px solid var(--line); box-shadow:none; padding:8px 10px; gap:10px; }
+  .act:hover { background:#f6f8f1; border-color:#cdd3c4; }
+  .act .ico { width:28px; height:28px; border-radius:7px; background:#eef3e2; color:#3b5a1f; }
+  .act .ico svg { width:15px; height:15px; stroke-width:1.8; }
+  .act .txt b { font-weight:500; font-size:13px; }
+  .act .txt small { color:var(--muted); font-size:11px; }
+  .act .chev { color:#b3bbad; }
+  .act.here { outline:0; border-color:#a9c46c; background:#f8fbef; }
+  .act.here .ico { background:var(--lime); color:var(--ink); }
+  .acts { gap:6px; }
+  button.main { font-weight:500; padding:9px; }
+  button.main:not(.ghost) { background:var(--ink2); }
+  button.ghost { box-shadow:none; }
+  .tag { background:#eef3e2; color:#2f4a17; font-weight:600; }
+  .field, .pick-btn, .note, .vn-item, .crow, .chip { box-shadow:none; }
+  .pick-btn { font-weight:500; }
+  .note-title, .vn-item .to { font-weight:500; }
+  .link { font-weight:500; }
+  .auto, .empty-state { background:#f3f6ec; border-color:#e6ecdb; }
+  .row { margin-bottom:4px; gap:8px; }
+  .tag { padding:5px 0; font-size:12px; }
+  .field input { padding:5px 6px; font-size:13px; }
+  .ok-dot { font-weight:500; }
+  /* Brand lime (logo color) on size labels and action icons */
+  .tag { background:#D6F078 !important; color:#1F2B22 !important; }
+  .act .ico, .act.here .ico { background:#D6F078; color:#1F2B22; }
+  button, .act, .pick-btn, .field { transition:background .12s, border-color .12s, color .12s; }
+</style>
+</head>
+<body>
+  <header>
+    <img class="logo" src="icons/icon32.png" width="28" height="28" alt="">
+    <div>
+      <h1>ClickAway</h1>
+      <p>Less Clicking. More Creating.</p>
+    </div>
+  </header>
+  <main>
+    <div class="product">
+      <label class="sec">Product</label>
+      <div class="pick">
+        <div class="picker">
+          <button id="profile" class="pick-btn" aria-haspopup="listbox" aria-expanded="false"><span id="pickName"></span><span class="caret">▾</span></button>
+          <div id="pickList" class="pick-list" role="listbox" hidden></div>
+        </div>
+        <button id="newP" class="main ghost small">+ New</button>
+      </div>
+      <div class="links">
+        <button id="renameP" class="link">Rename</button>
+        <button id="dupP" class="link">Duplicate</button>
+        <button id="deleteP" class="link danger">Delete</button>
+      </div>
+      <div class="empty-state" id="emptyState" hidden>
+        <b>Welcome to ClickAway</b>
+        <span>Save each product's prices and variants once, then fill them on Printify in one click.</span>
+        <button id="startNew" class="main">+ Add Your First Product</button>
+      </div>
+      <div class="auto" id="autoBox">
+        <div id="pageState" hidden></div>
+        <div class="linked">
+          <span class="lab">Auto-Selects On:</span>
+          <span id="chips"></span>
+        </div>
+      </div>
+      <div class="name-row" id="nameRow" hidden>
+        <input id="nameInput" maxlength="40" placeholder="e.g. Comfort Colors T-shirt">
+        <button id="nameOk" class="main small">OK</button>
+        <button id="nameCancel" class="main ghost small">✕</button>
+      </div>
+    </div>
+
+    <div id="work">
+    <div class="sec">Sizes &amp; Prices</div>
+    <div id="rows"></div>
+    <div class="size-tools" id="sizeTools" hidden>
+      <button id="addSize" class="link">+ Add Size</button>
+    </div>
+    <div class="colors" id="colorsBox">
+      <div class="sec"><span id="varTitle">Variants</span> <span id="colorCount"></span> <i>· click one to hold</i></div>
+      <div class="label-row" id="labelRow" hidden>
+        <label for="labelInput">Name This List</label>
+        <input id="labelInput" maxlength="20" placeholder="variants" list="labelIdeas">
+        <datalist id="labelIdeas"><option value="colors"><option value="sizes"><option value="models"><option value="scents"><option value="styles"></datalist>
+      </div>
+      <div id="colorChips"></div>
+      <div class="name-row" id="colorAddRow" hidden>
+        <input id="colorInput" maxlength="200" placeholder="e.g. White, Black  or  iPhone 16, Matte">
+        <button id="colorAdd" class="main small">Add</button>
+      </div>
+    </div>
+    <div class="edit-bar">
+      <button id="edit" class="main ghost"><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg> Edit Sizes &amp; Variants</button>
+      <button id="save" class="main" hidden>Save</button>
+      <button id="cancel" class="main ghost" hidden>Cancel</button>
+    </div>
+
+    <div class="notes">
+      <div class="notes-head">
+        <span class="sec">Notes <span id="noteCount"></span> <i>· click to copy</i></span>
+        <button id="addNote" class="link">+ Add Note</button>
+      </div>
+      <div id="noteList"></div>
+      <div class="note-form" id="noteForm" hidden>
+        <input id="noteTitle" maxlength="40" placeholder="Name, e.g. Product Description" aria-label="Note name">
+        <textarea id="noteText" rows="6" placeholder="Write or paste the text…" aria-label="Note text"></textarea>
+        <div class="note-actions">
+          <button id="noteSave" class="main small">Save Note</button>
+          <button id="noteCancel" class="main ghost small">Cancel</button>
+          <span id="noteChars"></span>
+          <button id="noteDelete" class="link danger" hidden>Delete</button>
+        </div>
+      </div>
+    </div>
+    </div>
+    <div class="sec" id="actsHead">Quick Actions</div>
+    <div class="acts">
+      <button id="apply" class="act"><span class="ico"><svg viewBox="0 0 24 24"><path d="M12 2v20M17 6H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span><span class="txt"><b>Apply Prices To This Page</b><small>Pricing → Detailed Table View</small></span><svg class="chev" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></button>
+      <button id="colorsBtn" class="act"><span class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="m8 12 3 3 5-6"/></svg></span><span class="txt"><b>Select Variants On This Page</b><small>Editor → Select Variants</small></span><svg class="chev" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></button>
+      <button id="vnApply" class="act"><span class="ico"><svg viewBox="0 0 24 24"><path d="M3 12V4a1 1 0 0 1 1-1h8l9 9-9 9z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg></span><span class="txt"><b>Set Variation Names On This Page</b><small>Multi-Product Listing → Listing Details</small></span><svg class="chev" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></button>
+    </div>
+    <details class="vn" id="vnBox">
+      <summary><span>Multi-Product Variation Names <span id="vnCount"></span></span></summary>
+      <div id="vnList"></div>
+      <div id="vnEdit" hidden>
+        <div class="vn-cols"><span>Printify Product</span><span>Name On Etsy</span></div>
+        <div id="vnRows"></div>
+        <div class="vn-tools">
+          <button id="vnAdd" class="link">+ Add Product</button>
+          <button id="vnRead" class="link" hidden>Read Names From This Page</button>
+        </div>
+        <div class="edit-bar">
+          <button id="vnSave" class="main">Save</button>
+          <button id="vnCancel" class="main ghost">Cancel</button>
+        </div>
+      </div>
+      <div id="vnView" class="edit-bar">
+        <button id="vnEditBtn" class="main ghost"><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg> <span id="vnEditLabel">Edit Names</span></button>
+      </div>
+    </details>
+    <button id="resetFabPositions" class="fab-reset" type="button">Reset floating button positions</button>
+    <button id="backup" class="main ghost"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="5" rx="1"/><path d="M5 9v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9M10 13h4"/></svg> Backup &amp; Restore</button>
+    <div id="status"></div>
+    <footer class="credit">Made with <span style="color: #E53935;">♥</span> by <b>ClickAway</b></footer>
+  </main>
+  <script src="popup.js"></script>
+</body>
+</html>

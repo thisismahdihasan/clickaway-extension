@@ -1,0 +1,48 @@
+{
+  "manifest_version": 3,
+  "name": "ClickAway",
+  "version": "5.2.1",
+  "description": "Simplifies repetitive Printify pricing, variant, and listing tasks, saved per product.",
+  "permissions": [
+    "storage",
+    "scripting",
+    "activeTab",
+    "debugger"
+  ],
+  "host_permissions": [
+    "https://printify.com/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "ClickAway",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://printify.com/app/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "options_page": "options.html",
+  "author": "ClickAway",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAmUQltSrDFJrA8ijrvMmbxrR5SA7jOB1ciph0d3CM1nEqGJJI5f3YeKMQ8tIiZzM+ezltzWelo+BZAA82eM/E4tioaFIn7jSwMPKQcKzQTnyw4n5sD2xNsgNDWEO/eFGPyVopLnJaAuWmyLrdkCY/oM94Ikj9InDG/XHu4JCfLb65ZzKDHK7cjxA3b4SJjCqk4c/krLDHnOjoouyVW+5rRVQiEwEXeZ0/K2LVhfEATbt9EWUOVvidAYV+ReugPyHeucTNjYdROI/H40hEOFfxjbeCJ7kzTSy4ViQpGMLSZVGV/YvJ1VPREbMEpHeElyYazkRZsS9UtQ3Bt+84mx3OUQIDAQAB"
+}
